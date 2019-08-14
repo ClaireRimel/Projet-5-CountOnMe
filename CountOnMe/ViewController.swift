@@ -94,7 +94,7 @@ class ViewController: UIViewController {
     }
     
     @IBAction func tappedDeleteButton(_ sender: UIButton) {
-         textView.text.removeAll()
+        textView.text.removeAll()
     }
     
     @IBAction func tappedEqualButton(_ sender: UIButton) {
@@ -120,14 +120,17 @@ class ViewController: UIViewController {
             let right = Float(operationsToReduce[2])!
             
             let result: Float
-            switch operand {
-            case "+": result = left + right
-            case "-": result = left - right
-            case "/": result = left / right
-            case "x": result = left * right
-        
-            default: fatalError("Unknown operator !")
-            }
+            
+                switch operand {
+                case "+": result = left + right
+                case "-": result = left - right
+                case "/": result = left / right
+                case "x": result = left * right
+                default:
+                    return textView.text.removeAll()
+
+                }
+            
             
             operationsToReduce = Array(operationsToReduce.dropFirst(3))
             operationsToReduce.insert("\(result)", at: 0)
@@ -135,6 +138,6 @@ class ViewController: UIViewController {
         
         textView.text.append(" = \(operationsToReduce.first!)")
     }
-
+    
 }
 
