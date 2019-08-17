@@ -12,6 +12,8 @@ class ViewController: UIViewController {
     @IBOutlet weak var textView: UITextView!
     @IBOutlet var numberButtons: [UIButton]!
     
+    var state: CalculatorState = .writingCalculation
+    
     var elements: [String] {
         return textView.text.split(separator: " ").map { "\($0)" }
     }
@@ -29,14 +31,16 @@ class ViewController: UIViewController {
         return elements.last != "+" && elements.last != "-" && elements.last != "/" && elements.last != "x"
     }
     
-    var expressionHaveResult: Bool {
-        return textView.text.firstIndex(of: "=") != nil
-    }
+    //Usage replaced by state variable
+//    var expressionHaveResult: Bool {
+//        return textView.text.firstIndex(of: "=") != nil
+//    }
     
     // View Life cycles
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
+        textView.text = "0"
     }
     
     
@@ -46,55 +50,138 @@ class ViewController: UIViewController {
             return
         }
         
-        if expressionHaveResult {
-            textView.text = ""
+        switch state {
+        case .writingCalculation:
+            if numberText == "." {
+                // textView.text = "0."
+                
+                //checking last
+                if let last = elements.last {
+                    //operator -> "0."
+                    //number -> "."
+                    //.
+                    
+                    switch last {
+                    case ".":
+                        break
+                    case "+", "-", "x", "/":
+                        textView.text.append("0.")
+                    default :
+                        textView.text.append(".")
+                    }
+                    
+                } else {
+                    //nothing...
+                    textView.text = "0."
+                }
+                
+            } else {
+                textView.text.append(numberText)
+            }
+            
+        case .displayingResult:
+            if numberText == "." {
+                textView.text = "0."
+            } else {
+                textView.text = numberText
+            }
+            
+            state = .writingCalculation
         }
         
-        textView.text.append(numberText)
+        
+//        if expressionHaveResult {
+//            textView.text = ""
+//        }
+//
+//        textView.text.append(numberText)
+//        state = .writingCalculation
+//
+        
+        //state ?
+        
     }
     
     @IBAction func tappedAdditionButton(_ sender: UIButton) {
-        if canAddOperator {
+        switch state {
+        case .writingCalculation:
+            if canAddOperator {
+                textView.text.append(" + ")
+            } else {
+                let alertVC = UIAlertController(title: "Zéro!", message: "Un operateur est déja mis !", preferredStyle: .alert)
+                alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+                self.present(alertVC, animated: true, completion: nil)
+            }
+            
+        case .displayingResult(let value):
+            //clean text
+            textView.text = value
             textView.text.append(" + ")
-        } else {
-            let alertVC = UIAlertController(title: "Zéro!", message: "Un operateur est déja mis !", preferredStyle: .alert)
-            alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-            self.present(alertVC, animated: true, completion: nil)
+            state = .writingCalculation
         }
+        
     }
     
     @IBAction func tappedSubstractionButton(_ sender: UIButton) {
-        if canAddOperator {
+        switch state {
+        case .writingCalculation:
+            if canAddOperator {
+                textView.text.append(" - ")
+            } else {
+                let alertVC = UIAlertController(title: "Zéro!", message: "Un operateur est déja mis !", preferredStyle: .alert)
+                alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+                self.present(alertVC, animated: true, completion: nil)
+            }
+            
+        case .displayingResult(let value):
+            //clean text
+            textView.text = value
             textView.text.append(" - ")
-        } else {
-            let alertVC = UIAlertController(title: "Zéro!", message: "Un operateur est déja mis !", preferredStyle: .alert)
-            alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-            self.present(alertVC, animated: true, completion: nil)
+            state = .writingCalculation
         }
     }
     
     @IBAction func tappedDivisionButton(_ sender: UIButton) {
-        if canAddOperator {
+        switch state {
+        case .writingCalculation:
+            if canAddOperator {
+                textView.text.append(" / ")
+            } else {
+                let alertVC = UIAlertController(title: "Zéro!", message: "Un operateur est déja mis !", preferredStyle: .alert)
+                alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+                self.present(alertVC, animated: true, completion: nil)
+            }
+            
+        case .displayingResult(let value):
+            //clean text
+            textView.text = value
             textView.text.append(" / ")
-        } else {
-            let alertVC = UIAlertController(title: "Zéro!", message: "Un operateur est déja mis !", preferredStyle: .alert)
-            alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-            self.present(alertVC, animated: true, completion: nil)
+            state = .writingCalculation
         }
     }
     
     @IBAction func tappedMultiplicationButton(_ sender: UIButton) {
-        if canAddOperator {
+        switch state {
+        case .writingCalculation:
+            if canAddOperator {
+                textView.text.append(" x ")
+            } else {
+                let alertVC = UIAlertController(title: "Zéro!", message: "Un operateur est déja mis !", preferredStyle: .alert)
+                alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+                self.present(alertVC, animated: true, completion: nil)
+            }
+            
+        case .displayingResult(let value):
+            //clean text
+            textView.text = value
             textView.text.append(" x ")
-        } else {
-            let alertVC = UIAlertController(title: "Zéro!", message: "Un operateur est déja mis !", preferredStyle: .alert)
-            alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-            self.present(alertVC, animated: true, completion: nil)
+            state = .writingCalculation
         }
     }
     
     @IBAction func tappedDeleteButton(_ sender: UIButton) {
         textView.text.removeAll()
+        state = .writingCalculation
     }
     
     @IBAction func tappedEqualButton(_ sender: UIButton) {
@@ -108,6 +195,12 @@ class ViewController: UIViewController {
             let alertVC = UIAlertController(title: "Zéro!", message: "Démarrez un nouveau calcul !", preferredStyle: .alert)
             alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
             return self.present(alertVC, animated: true, completion: nil)
+        }
+        
+        guard state == .writingCalculation else {
+            textView.text.removeAll()
+            state = .writingCalculation
+            return
         }
         
         // Create local copy of operations
@@ -137,7 +230,12 @@ class ViewController: UIViewController {
         }
         
         textView.text.append(" = \(operationsToReduce.first!)")
+        state = .displayingResult(value: operationsToReduce.first!)
     }
     
 }
 
+enum CalculatorState: Equatable {
+    case writingCalculation
+    case displayingResult(value: String)
+}
