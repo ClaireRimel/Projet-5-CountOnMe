@@ -50,6 +50,10 @@ class ViewController: UIViewController {
             return
         }
         
+        if textView.text == "0" {
+            textView.text.removeAll()
+        }
+        
         switch state {
         case .writingCalculation:
             
@@ -62,16 +66,14 @@ class ViewController: UIViewController {
                         alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
                         self.present(alertVC, animated: true, completion: nil)
                     } else {
-                    switch last {
-                     //el "." no se detecta como solito entonces nunca llama al first case
-//                    case "1.","2.","3.","4.","5.","6.","7.","8.","9.","0." :
-                    case ".":
-                        break
-                    case "+", "-", "x", "/":
-                        textView.text.append("0.")
-                    default :
-                        textView.text.append(".")
-                    }
+                        switch last {
+//                        case ".":
+//                            break
+                        case "+", "-", "x", "/":
+                            textView.text.append("0.")
+                        default :
+                            textView.text.append(".")
+                        }
                     }
                 } else {
                     //nothing...
@@ -90,18 +92,6 @@ class ViewController: UIViewController {
             
             state = .writingCalculation
         }
-        
-        
-//        if expressionHaveResult {
-//            textView.text = ""
-//        }
-//
-//        textView.text.append(numberText)
-//        state = .writingCalculation
-//
-        
-        //state ?
-        
     }
     
     @IBAction func tappedAdditionButton(_ sender: UIButton) {
