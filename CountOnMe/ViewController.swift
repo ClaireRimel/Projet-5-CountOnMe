@@ -52,16 +52,19 @@ class ViewController: UIViewController {
         
         switch state {
         case .writingCalculation:
+            
             if numberText == "." {
-                // textView.text = "0."
-                
                 //checking last
-                if let last = elements.last {
-                    //operator -> "0."
-                    //number -> "."
-                    //.
-                    
+                if let last = elements.last  {
+                    if last.contains(".") {
+                        print("il y a  deja un bouton")
+                        let alertVC = UIAlertController(title: "Zéro!", message: "Une virgule est déja mise", preferredStyle: .alert)
+                        alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+                        self.present(alertVC, animated: true, completion: nil)
+                    } else {
                     switch last {
+                     //el "." no se detecta como solito entonces nunca llama al first case
+//                    case "1.","2.","3.","4.","5.","6.","7.","8.","9.","0." :
                     case ".":
                         break
                     case "+", "-", "x", "/":
@@ -69,12 +72,11 @@ class ViewController: UIViewController {
                     default :
                         textView.text.append(".")
                     }
-                    
+                    }
                 } else {
                     //nothing...
                     textView.text = "0."
                 }
-                
             } else {
                 textView.text.append(numberText)
             }
@@ -207,35 +209,111 @@ class ViewController: UIViewController {
         var operationsToReduce = elements
         
         // Iterate over operations while an operand still here
-        while operationsToReduce.count > 1 {
-            let left = Float(operationsToReduce[0])!
-            let operand = operationsToReduce[1]
-            let right = Float(operationsToReduce[2])!
-            
-            let result: Float
-            
-                switch operand {
-                case "+": result = left + right
-                case "-": result = left - right
-                case "/": result = left / right
-                case "x": result = left * right
-                default:
-                    return textView.text.removeAll()
-
+        while operationsToReduce.contains(Operator.multiplication.rawValue)
+            || operationsToReduce.contains(Operator.division.rawValue) {
+                
+                let index = operationsToReduce.firstIndex { (element) -> Bool in
+                    if let operation = Operator(rawValue: element),
+                        operation == .multiplication || operation == .division {
+                        return true
+                    } else {
+                        return false
+                    }
                 }
-            
-            
-            operationsToReduce = Array(operationsToReduce.dropFirst(3))
-            operationsToReduce.insert("\(result)", at: 0)
+                
+                if let index = index {
+                    let operation = Operator(rawValue: operationsToReduce[index])!
+                    
+                    let left = Double(operationsToReduce[index - 1])!
+                    let right = Double(operationsToReduce[index + 1])!
+                    let result: Double = operation.operand(left: left, right: right)
+                 
+                    operationsToReduce.remove(at: index - 1)
+                    operationsToReduce.remove(at: index - 1)
+                    operationsToReduce.insert("\(result)", at: index)
+                    operationsToReduce.remove(at: index - 1)
+                }
         }
         
+        // Iterate over operations while an operand still here
+        while operationsToReduce.contains(Operator.addition.rawValue)
+            || operationsToReduce.contains(Operator.substraction.rawValue) {
+                
+                let index = operationsToReduce.firstIndex { (element) -> Bool in
+                    if let operation = Operator(rawValue: element),
+                        operation == .addition || operation == .substraction {
+                        return true
+                    } else {
+                        return false
+                    }
+                }
+                
+                if let index = index {
+                    let operation = Operator(rawValue: operationsToReduce[index])!
+                    
+                    let left = Double(operationsToReduce[index - 1])!
+                    let right = Double(operationsToReduce[index + 1])!
+                    let result: Double = operation.operand(left: left, right: right)
+                    
+                    operationsToReduce.remove(at: index - 1)
+                    operationsToReduce.remove(at: index - 1)
+                    operationsToReduce.insert("\(result)", at: index)
+                    operationsToReduce.remove(at: index - 1)
+                }
+        }
         textView.text.append(" = \(operationsToReduce.first!)")
         state = .displayingResult(value: operationsToReduce.first!)
+        
+//        operationsToReduce
+        
+//        // Iterate over operations while an operand still here
+//        while operationsToReduce.count > 1 {
+//            let left = Float(operationsToReduce[0])!
+//            let operand = operationsToReduce[1]
+//            let right = Float(operationsToReduce[2])!
+//
+//            let result: Float
+//
+//                switch operand {
+//                case "+": result = left + right
+//                case "-": result = left - right
+//                case "/": result = left / right
+//                case "x": result = left * right
+//                default:
+//                    return textView.text.removeAll()
+//
+//                }
+            
+            
+//            operationsToReduce = Array(operationsToReduce.dropFirst(3))
+            //operationsToReduce.insert("\(result)", at: 0)
+        }
     }
-    
-}
 
 enum CalculatorState: Equatable {
     case writingCalculation
     case displayingResult(value: String)
+}
+
+enum Operator: String, CaseIterable, RawRepresentable {
+    case multiplication = "x"
+    case division = "/"
+    case addition = "+"
+    case substraction = "-"
+}
+
+extension Operator {
+    
+    func operand(left: Double, right: Double) -> Double {
+        switch self {
+        case .multiplication:
+            return left * right
+        case .division:
+            return left / right
+        case .addition:
+            return left + right
+        case .substraction:
+            return left - right
+        }
+    }
 }
