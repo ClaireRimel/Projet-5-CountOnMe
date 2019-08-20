@@ -61,7 +61,6 @@ class ViewController: UIViewController {
                 //checking last
                 if let last = elements.last  {
                     if last.contains(".") {
-                        print("il y a  deja un bouton")
                         let alertVC = UIAlertController(title: "Zéro!", message: "Une virgule est déja mise", preferredStyle: .alert)
                         alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
                         self.present(alertVC, animated: true, completion: nil)
@@ -251,34 +250,22 @@ class ViewController: UIViewController {
                     operationsToReduce.remove(at: index - 1)
                 }
         }
-        textView.text.append(" = \(operationsToReduce.first!)")
-        state = .displayingResult(value: operationsToReduce.first!)
         
-//        operationsToReduce
-        
-//        // Iterate over operations while an operand still here
-//        while operationsToReduce.count > 1 {
-//            let left = Float(operationsToReduce[0])!
-//            let operand = operationsToReduce[1]
-//            let right = Float(operationsToReduce[2])!
-//
-//            let result: Float
-//
-//                switch operand {
-//                case "+": result = left + right
-//                case "-": result = left - right
-//                case "/": result = left / right
-//                case "x": result = left * right
-//                default:
-//                    return textView.text.removeAll()
-//
-//                }
+        if let value = operationsToReduce.first,
+            let result = Double(value) {
             
+            let resultString: String
+            if  result.truncatingRemainder(dividingBy: 1.0) == 0 {
+                resultString = String(format: "%.f", result)
+            } else {
+                resultString = String(format: "%.2f", result)
+            }
             
-//            operationsToReduce = Array(operationsToReduce.dropFirst(3))
-            //operationsToReduce.insert("\(result)", at: 0)
+            textView.text.append(" = \(resultString)")
+            state = .displayingResult(value: resultString)
         }
     }
+}
 
 enum CalculatorState: Equatable {
     case writingCalculation
