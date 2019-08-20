@@ -79,7 +79,13 @@ class ViewController: UIViewController {
                     textView.text = "0."
                 }
             } else {
-                textView.text.append(numberText)
+                if let last = elements.last, last == "/", numberText == "0" {
+                    let alertVC = UIAlertController(title: "Zéro!", message: "Division par 0 impossible", preferredStyle: .alert)
+                    alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+                    self.present(alertVC, animated: true, completion: nil)
+                } else {
+                    textView.text.append(numberText)
+                }
             }
             
         case .displayingResult:
