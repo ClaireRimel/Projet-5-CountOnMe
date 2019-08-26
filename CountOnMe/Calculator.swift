@@ -38,6 +38,26 @@ class Calculator {
 }
 
 extension Calculator: ViewControllerDelegate {
+    
+    func viewControllerTapperOpperatorButton(_ viewController: ViewController, operation: Operator) {
+        switch state {
+        case .writingCalculation:
+            if canAddOperator {
+                viewController.textView.text.append(" " + operation.rawValue + " ")
+
+            } else {
+                viewController.displayErrorMessage(type: .lastCharacterIsAnOperator)
+            }
+            
+        case .displayingResult(let value):
+            //clean text
+            viewController.textView.text = value
+            viewController.textView.text.append(" " + operation.rawValue + " ")
+            state = .writingCalculation
+        }
+        
+    }
+    
     func viewControllerTapperNumberButton(_ viewController: ViewController, numberText: String) {
         if numberText == "0" {
             viewController.textView.text.removeAll()

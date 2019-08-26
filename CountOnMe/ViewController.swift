@@ -8,9 +8,11 @@
 
 import UIKit
 
-protocol ViewControllerDelegate: class{
+protocol ViewControllerDelegate: class {
+    
     func viewControllerTapperNumberButton(_ viewController: ViewController, numberText: String)
-//    func viewControllerTapperOpperatorButton(_ viewController: ViewController)
+    
+    func viewControllerTapperOpperatorButton(_ viewController: ViewController, operation: Operator)
 //    func viewControllerTapperEqualButton(_ viewController: ViewController)
 //    func viewControllerTapperDeleteButton(_ viewController: ViewController)
 }
@@ -18,6 +20,7 @@ protocol ViewControllerDelegate: class{
 enum MessageErrorType {
     case lastCharacterIsAComma
     case impossibleDivisionByZero
+    case lastCharacterIsAnOperator
 }
 
 extension MessageErrorType {
@@ -28,12 +31,14 @@ extension MessageErrorType {
             return  "Une virgule est déja mise"
         case .impossibleDivisionByZero:
             return "Division par 0 impossible"
+        case .lastCharacterIsAnOperator:
+            return "Un operateur est déja mis !"
         }
     }
     
     var title: String {
         switch self {
-        case .lastCharacterIsAComma:
+        case .lastCharacterIsAComma, .lastCharacterIsAnOperator:
             return "Erreur"
         case .impossibleDivisionByZero:
             return "Zéro!"
@@ -91,80 +96,19 @@ class ViewController: UIViewController {
     }
     
     @IBAction func tappedAdditionButton(_ sender: UIButton) {
-        switch state {
-        case .writingCalculation:
-            if canAddOperator {
-                textView.text.append(" + ")
-            } else {
-                let alertVC = UIAlertController(title: "Zéro!", message: "Un operateur est déja mis !", preferredStyle: .alert)
-                alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-                self.present(alertVC, animated: true, completion: nil)
-            }
-            
-        case .displayingResult(let value):
-            //clean text
-            textView.text = value
-            textView.text.append(" + ")
-            state = .writingCalculation
-        }
-        
+        delegate?.viewControllerTapperOpperatorButton(self, operation: .addition)
     }
     
     @IBAction func tappedSubstractionButton(_ sender: UIButton) {
-        switch state {
-        case .writingCalculation:
-            if canAddOperator {
-                textView.text.append(" - ")
-            } else {
-                let alertVC = UIAlertController(title: "Zéro!", message: "Un operateur est déja mis !", preferredStyle: .alert)
-                alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-                self.present(alertVC, animated: true, completion: nil)
-            }
-            
-        case .displayingResult(let value):
-            //clean text
-            textView.text = value
-            textView.text.append(" - ")
-            state = .writingCalculation
-        }
+        delegate?.viewControllerTapperOpperatorButton(self, operation: .substraction)
     }
     
     @IBAction func tappedDivisionButton(_ sender: UIButton) {
-        switch state {
-        case .writingCalculation:
-            if canAddOperator {
-                textView.text.append(" / ")
-            } else {
-                let alertVC = UIAlertController(title: "Zéro!", message: "Un operateur est déja mis !", preferredStyle: .alert)
-                alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-                self.present(alertVC, animated: true, completion: nil)
-            }
-            
-        case .displayingResult(let value):
-            //clean text
-            textView.text = value
-            textView.text.append(" / ")
-            state = .writingCalculation
-        }
+        delegate?.viewControllerTapperOpperatorButton(self, operation: .division)
     }
     
     @IBAction func tappedMultiplicationButton(_ sender: UIButton) {
-        switch state {
-        case .writingCalculation:
-            if canAddOperator {
-                textView.text.append(" x ")
-            } else {
-                let alertVC = UIAlertController(title: "Zéro!", message: "Un operateur est déja mis !", preferredStyle: .alert)
-                alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-                self.present(alertVC, animated: true, completion: nil)
-            }
-            
-        case .displayingResult(let value):
-            //clean text
-            textView.text = value
-            textView.text.append(" x ")
-            state = .writingCalculation
-        }
+        delegate?.viewControllerTapperOpperatorButton(self, operation: .multiplication)
     }
     
     @IBAction func tappedDeleteButton(_ sender: UIButton) {
