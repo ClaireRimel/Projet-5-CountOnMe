@@ -13,7 +13,9 @@ protocol ViewControllerDelegate: class {
     func viewControllerTapperNumberButton(_ viewController: ViewController, numberText: String)
     
     func viewControllerTapperOpperatorButton(_ viewController: ViewController, operation: Operator)
-//    func viewControllerTapperEqualButton(_ viewController: ViewController)
+    
+    func viewControllerTapperEqualButton(_ viewController: ViewController)
+    
     func viewControllerTapperDeleteButton(_ viewController: ViewController)
 }
 
@@ -21,6 +23,8 @@ enum MessageErrorType {
     case lastCharacterIsAComma
     case impossibleDivisionByZero
     case lastCharacterIsAnOperator
+    case expressionIsNotCorrect
+    case expressionDoesNotHaveEnoughElement
 }
 
 extension MessageErrorType {
@@ -33,12 +37,19 @@ extension MessageErrorType {
             return "Division par 0 impossible"
         case .lastCharacterIsAnOperator:
             return "Un operateur est déja mis !"
+        case .expressionIsNotCorrect:
+            return "Entrez une expression correcte !"
+        case .expressionDoesNotHaveEnoughElement:
+            return "Démarrez un nouveau calcul !"
         }
     }
     
     var title: String {
         switch self {
-        case .lastCharacterIsAComma, .lastCharacterIsAnOperator:
+        case .lastCharacterIsAComma,
+             .lastCharacterIsAnOperator,
+             .expressionIsNotCorrect,
+             .expressionDoesNotHaveEnoughElement:
             return "Erreur"
         case .impossibleDivisionByZero:
             return "Zéro!"
@@ -116,93 +127,6 @@ class ViewController: UIViewController {
     }
     
     @IBAction func tappedEqualButton(_ sender: UIButton) {
-        guard expressionIsCorrect else {
-            let alertVC = UIAlertController(title: "Zéro!", message: "Entrez une expression correcte !", preferredStyle: .alert)
-            alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-            return self.present(alertVC, animated: true, completion: nil)
-        }
-        
-        guard expressionHaveEnoughElement else {
-            let alertVC = UIAlertController(title: "Zéro!", message: "Démarrez un nouveau calcul !", preferredStyle: .alert)
-            alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-            return self.present(alertVC, animated: true, completion: nil)
-        }
-        
-        guard state == .writingCalculation else {
-            textView.text.removeAll()
-            state = .writingCalculation
-            return
-        }
-        
-        // Create local copy of operations
-        var operationsToReduce = elements
-        
-        // Iterate over operations while an operand still here
-        while operationsToReduce.contains(Operator.multiplication.rawValue)
-            || operationsToReduce.contains(Operator.division.rawValue) {
-                
-                let index = operationsToReduce.firstIndex { (element) -> Bool in
-                    if let operation = Operator(rawValue: element),
-                        operation == .multiplication || operation == .division {
-                        return true
-                    } else {
-                        return false
-                    }
-                }
-                
-                if let index = index {
-                    let operation = Operator(rawValue: operationsToReduce[index])!
-                    
-                    let left = Double(operationsToReduce[index - 1])!
-                    let right = Double(operationsToReduce[index + 1])!
-                    let result: Double = operation.operand(left: left, right: right)
-                 
-                    operationsToReduce.remove(at: index - 1)
-                    operationsToReduce.remove(at: index - 1)
-                    operationsToReduce.insert("\(result)", at: index)
-                    operationsToReduce.remove(at: index - 1)
-                }
-        }
-        
-        // Iterate over operations while an operand still here
-        while operationsToReduce.contains(Operator.addition.rawValue)
-            || operationsToReduce.contains(Operator.substraction.rawValue) {
-                
-                let index = operationsToReduce.firstIndex { (element) -> Bool in
-                    if let operation = Operator(rawValue: element),
-                        operation == .addition || operation == .substraction {
-                        return true
-                    } else {
-                        return false
-                    }
-                }
-                
-                if let index = index {
-                    let operation = Operator(rawValue: operationsToReduce[index])!
-                    
-                    let left = Double(operationsToReduce[index - 1])!
-                    let right = Double(operationsToReduce[index + 1])!
-                    let result: Double = operation.operand(left: left, right: right)
-                    
-                    operationsToReduce.remove(at: index - 1)
-                    operationsToReduce.remove(at: index - 1)
-                    operationsToReduce.insert("\(result)", at: index)
-                    operationsToReduce.remove(at: index - 1)
-                }
-        }
-        
-        if let value = operationsToReduce.first,
-            let result = Double(value) {
-            
-            let resultString: String
-            if  result.truncatingRemainder(dividingBy: 1.0) == 0 {
-                resultString = String(format: "%.f", result)
-            } else {
-                resultString = String(format: "%.2f", result)
-            }
-            
-            textView.text.append(" = \(resultString)")
-            state = .displayingResult(value: resultString)
-        }
+       delegate?.viewControllerTapperEqualButton(self)
     }
 }

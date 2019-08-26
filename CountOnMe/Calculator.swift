@@ -38,6 +38,95 @@ class Calculator {
 }
 
 extension Calculator: ViewControllerDelegate {
+    func viewControllerTapperEqualButton(_ viewController: ViewController) {
+        guard expressionIsCorrect else {
+            viewController.displayErrorMessage(type: .expressionIsNotCorrect)
+            return
+        }
+        
+        guard expressionHaveEnoughElement else {
+            viewController.displayErrorMessage(type: .expressionDoesNotHaveEnoughElement)
+            return
+        }
+        
+        guard state == .writingCalculation else {
+            viewController.textView.text.removeAll()
+            state = .writingCalculation
+            return
+        }
+        
+        // Create local copy of operations
+        var operationsToReduce = elements
+        
+        // Iterate over operations while an operand still here
+        while operationsToReduce.contains(Operator.multiplication.rawValue)
+            || operationsToReduce.contains(Operator.division.rawValue) {
+                
+                let index = operationsToReduce.firstIndex { (element) -> Bool in
+                    if let operation = Operator(rawValue: element),
+                        operation == .multiplication || operation == .division {
+                        return true
+                    } else {
+                        return false
+                    }
+                }
+                
+                if let index = index {
+                    let operation = Operator(rawValue: operationsToReduce[index])!
+                    
+                    let left = Double(operationsToReduce[index - 1])!
+                    let right = Double(operationsToReduce[index + 1])!
+                    let result: Double = operation.operand(left: left, right: right)
+                    
+                    operationsToReduce.remove(at: index - 1)
+                    operationsToReduce.remove(at: index - 1)
+                    operationsToReduce.insert("\(result)", at: index)
+                    operationsToReduce.remove(at: index - 1)
+                }
+        }
+        
+        // Iterate over operations while an operand still here
+        while operationsToReduce.contains(Operator.addition.rawValue)
+            || operationsToReduce.contains(Operator.substraction.rawValue) {
+                
+                let index = operationsToReduce.firstIndex { (element) -> Bool in
+                    if let operation = Operator(rawValue: element),
+                        operation == .addition || operation == .substraction {
+                        return true
+                    } else {
+                        return false
+                    }
+                }
+                
+                if let index = index {
+                    let operation = Operator(rawValue: operationsToReduce[index])!
+                    
+                    let left = Double(operationsToReduce[index - 1])!
+                    let right = Double(operationsToReduce[index + 1])!
+                    let result: Double = operation.operand(left: left, right: right)
+                    
+                    operationsToReduce.remove(at: index - 1)
+                    operationsToReduce.remove(at: index - 1)
+                    operationsToReduce.insert("\(result)", at: index)
+                    operationsToReduce.remove(at: index - 1)
+                }
+        }
+        
+        if let value = operationsToReduce.first,
+            let result = Double(value) {
+            
+            let resultString: String
+            if  result.truncatingRemainder(dividingBy: 1.0) == 0 {
+                resultString = String(format: "%.f", result)
+            } else {
+                resultString = String(format: "%.2f", result)
+            }
+            
+            viewController.textView.text.append(" = \(resultString)")
+            state = .displayingResult(value: resultString)
+        }
+    }
+    
     
     func viewControllerTapperDeleteButton(_ viewController: ViewController) {
         viewController.textView.text.removeAll()
