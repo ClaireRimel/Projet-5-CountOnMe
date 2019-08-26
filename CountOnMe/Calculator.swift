@@ -39,6 +39,11 @@ class Calculator {
 
 extension Calculator: ViewControllerDelegate {
     
+    func viewControllerTapperDeleteButton(_ viewController: ViewController) {
+        viewController.textView.text.removeAll()
+        state = .writingCalculation
+    }
+    
     func viewControllerTapperOpperatorButton(_ viewController: ViewController, operation: Operator) {
         switch state {
         case .writingCalculation:

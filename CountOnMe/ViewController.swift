@@ -14,7 +14,7 @@ protocol ViewControllerDelegate: class {
     
     func viewControllerTapperOpperatorButton(_ viewController: ViewController, operation: Operator)
 //    func viewControllerTapperEqualButton(_ viewController: ViewController)
-//    func viewControllerTapperDeleteButton(_ viewController: ViewController)
+    func viewControllerTapperDeleteButton(_ viewController: ViewController)
 }
 
 enum MessageErrorType {
@@ -112,8 +112,7 @@ class ViewController: UIViewController {
     }
     
     @IBAction func tappedDeleteButton(_ sender: UIButton) {
-        textView.text.removeAll()
-        state = .writingCalculation
+        delegate?.viewControllerTapperDeleteButton(self)
     }
     
     @IBAction func tappedEqualButton(_ sender: UIButton) {
