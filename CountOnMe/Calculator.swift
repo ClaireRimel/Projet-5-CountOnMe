@@ -153,7 +153,7 @@ extension Calculator: ViewControllerDelegate {
     }
     
     func viewControllerTapperNumberButton(_ viewController: ViewController, numberText: String) {
-        if numberText == "0" {
+        if viewController.textView.text == "0" {
             viewController.textView.text.removeAll()
         }
         
