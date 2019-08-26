@@ -8,10 +8,53 @@
 
 import UIKit
 
+protocol ViewControllerDelegate: class{
+    func viewControllerTapperNumberButton(_ viewController: ViewController, numberText: String)
+//    func viewControllerTapperOpperatorButton(_ viewController: ViewController)
+//    func viewControllerTapperEqualButton(_ viewController: ViewController)
+//    func viewControllerTapperDeleteButton(_ viewController: ViewController)
+}
+
+enum MessageErrorType {
+    case lastCharacterIsAComma
+    case impossibleDivisionByZero
+}
+
+extension MessageErrorType {
+    
+    var message: String {
+        switch self {
+        case .lastCharacterIsAComma:
+            return  "Une virgule est déja mise"
+        case .impossibleDivisionByZero:
+            return "Division par 0 impossible"
+        }
+    }
+    
+    var title: String {
+        switch self {
+        case .lastCharacterIsAComma:
+            return "Erreur"
+        case .impossibleDivisionByZero:
+            return "Zéro!"
+        }
+    }
+}
+
 class ViewController: UIViewController {
+    
     @IBOutlet weak var textView: UITextView!
     @IBOutlet var numberButtons: [UIButton]!
     
+    weak var delegate: ViewControllerDelegate?
+    
+    func displayErrorMessage(type: MessageErrorType){
+        let alertVC = UIAlertController(title: type.title, message: type.message, preferredStyle: .alert)
+        alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+        self.present(alertVC, animated: true, completion: nil)
+    }
+    
+    // Work in progress 
     var state: CalculatorState = .writingCalculation
     
     var elements: [String] {
@@ -31,11 +74,6 @@ class ViewController: UIViewController {
         return elements.last != "+" && elements.last != "-" && elements.last != "/" && elements.last != "x"
     }
     
-    //Usage replaced by state variable
-//    var expressionHaveResult: Bool {
-//        return textView.text.firstIndex(of: "=") != nil
-//    }
-    
     // View Life cycles
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -43,60 +81,13 @@ class ViewController: UIViewController {
         textView.text = "0"
     }
     
-    
     // View actions
     @IBAction func tappedNumberButton(_ sender: UIButton) {
         guard let numberText = sender.title(for: .normal) else {
             return
         }
         
-        if textView.text == "0" {
-            textView.text.removeAll()
-        }
-        
-        switch state {
-        case .writingCalculation:
-            
-            if numberText == "." {
-                //checking last
-                if let last = elements.last  {
-                    if last.contains(".") {
-                        let alertVC = UIAlertController(title: "Zéro!", message: "Une virgule est déja mise", preferredStyle: .alert)
-                        alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-                        self.present(alertVC, animated: true, completion: nil)
-                    } else {
-                        switch last {
-//                        case ".":
-//                            break
-                        case "+", "-", "x", "/":
-                            textView.text.append("0.")
-                        default :
-                            textView.text.append(".")
-                        }
-                    }
-                } else {
-                    //nothing...
-                    textView.text = "0."
-                }
-            } else {
-                if let last = elements.last, last == "/", numberText == "0" {
-                    let alertVC = UIAlertController(title: "Zéro!", message: "Division par 0 impossible", preferredStyle: .alert)
-                    alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-                    self.present(alertVC, animated: true, completion: nil)
-                } else {
-                    textView.text.append(numberText)
-                }
-            }
-            
-        case .displayingResult:
-            if numberText == "." {
-                textView.text = "0."
-            } else {
-                textView.text = numberText
-            }
-            
-            state = .writingCalculation
-        }
+        delegate?.viewControllerTapperNumberButton(self, numberText: numberText)
     }
     
     @IBAction func tappedAdditionButton(_ sender: UIButton) {
@@ -269,34 +260,6 @@ class ViewController: UIViewController {
             
             textView.text.append(" = \(resultString)")
             state = .displayingResult(value: resultString)
-        }
-    }
-}
-
-enum CalculatorState: Equatable {
-    case writingCalculation
-    case displayingResult(value: String)
-}
-
-enum Operator: String, CaseIterable, RawRepresentable {
-    case multiplication = "x"
-    case division = "/"
-    case addition = "+"
-    case substraction = "-"
-}
-
-extension Operator {
-    
-    func operand(left: Double, right: Double) -> Double {
-        switch self {
-        case .multiplication:
-            return left * right
-        case .division:
-            return left / right
-        case .addition:
-            return left + right
-        case .substraction:
-            return left - right
         }
     }
 }
