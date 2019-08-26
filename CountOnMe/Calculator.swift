@@ -34,6 +34,7 @@ class Calculator {
 
     init(viewController: ViewController) {
         self.viewController = viewController
+        viewController.delegate = self
     }
 }
 
