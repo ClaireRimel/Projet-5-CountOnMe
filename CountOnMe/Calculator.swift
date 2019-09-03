@@ -134,7 +134,7 @@ extension Calculator: ViewControllerDelegate {
         state = .writingCalculation
     }
     
-    func viewControllerTapperOpperatorButton(_ viewController: ViewController, operation: Operator) {
+    func viewControllerTapperOperatorButton(_ viewController: ViewController, operation: Operator) {
         switch state {
         case .writingCalculation:
             if canAddOperator {
@@ -202,8 +202,6 @@ extension Calculator: ViewControllerDelegate {
             state = .writingCalculation
         }
     }
-    
-    
 }
 
 

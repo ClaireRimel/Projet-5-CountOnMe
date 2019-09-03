@@ -12,7 +12,7 @@ protocol ViewControllerDelegate: class {
     
     func viewControllerTapperNumberButton(_ viewController: ViewController, numberText: String)
     
-    func viewControllerTapperOpperatorButton(_ viewController: ViewController, operation: Operator)
+    func viewControllerTapperOperatorButton(_ viewController: ViewController, operation: Operator)
     
     func viewControllerTapperEqualButton(_ viewController: ViewController)
     
@@ -59,7 +59,7 @@ extension MessageErrorType {
 
 class ViewController: UIViewController {
     
-    @IBOutlet weak var textView: UITextView!
+    @IBOutlet var textView: UITextView!
     @IBOutlet var numberButtons: [UIButton]!
     
     weak var delegate: ViewControllerDelegate?
@@ -107,19 +107,19 @@ class ViewController: UIViewController {
     }
     
     @IBAction func tappedAdditionButton(_ sender: UIButton) {
-        delegate?.viewControllerTapperOpperatorButton(self, operation: .addition)
+        delegate?.viewControllerTapperOperatorButton(self, operation: .addition)
     }
     
     @IBAction func tappedSubstractionButton(_ sender: UIButton) {
-        delegate?.viewControllerTapperOpperatorButton(self, operation: .substraction)
+        delegate?.viewControllerTapperOperatorButton(self, operation: .substraction)
     }
     
     @IBAction func tappedDivisionButton(_ sender: UIButton) {
-        delegate?.viewControllerTapperOpperatorButton(self, operation: .division)
+        delegate?.viewControllerTapperOperatorButton(self, operation: .division)
     }
     
     @IBAction func tappedMultiplicationButton(_ sender: UIButton) {
-        delegate?.viewControllerTapperOpperatorButton(self, operation: .multiplication)
+        delegate?.viewControllerTapperOperatorButton(self, operation: .multiplication)
     }
     
     @IBAction func tappedDeleteButton(_ sender: UIButton) {
