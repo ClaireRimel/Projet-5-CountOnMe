@@ -55,39 +55,45 @@ class CountOnMeTests: XCTestCase {
     //MARK: Operators
     
     func testCanAddOperator() {
-        //Given
-        sut.state = .writingCalculation
-        viewController.textView.text = "1"
-
-        //When
-        sut.viewControllerTapperOperatorButton(viewController, operation: .addition)
-
-        //Then
-        XCTAssertEqual(viewController.textView.text, "1 + ")
+        for operation in Operator.allCases {
+            //Given
+            sut.state = .writingCalculation
+            viewController.textView.text = "1"
+            
+            //When
+            sut.viewControllerTapperOperatorButton(viewController, operation: operation)
+            
+            //Then
+            XCTAssertEqual(viewController.textView.text, "1 \(operation.rawValue) ")
+        }
     }
     
     func testCannotAddOperator() {
-        //Given
-        sut.state = .writingCalculation
-        viewController.textView.text = "-"
-
-        //When
-        sut.viewControllerTapperOperatorButton(viewController, operation: .addition)
-
-        //Then
-        XCTAssertEqual(viewController.type, .lastCharacterIsAnOperator)
+        for operation in Operator.allCases {
+            //Given
+            sut.state = .writingCalculation
+            viewController.textView.text = "-"
+            
+            //When
+            sut.viewControllerTapperOperatorButton(viewController, operation: operation)
+            
+            //Then
+            XCTAssertEqual(viewController.type, .lastCharacterIsAnOperator)
+        }
     }
     
     func testDisplaysOperatorAfterCalculation() {
-        //Given
-        sut.state = .displayingResult(value: "23")
-        
-        //When
-        sut.viewControllerTapperOperatorButton(viewController, operation: .addition)
-        
-        //Then
-        XCTAssertEqual(viewController.textView.text, "23 + ")
-        XCTAssertEqual(sut.state, .writingCalculation)
+        for operation in Operator.allCases {
+            //Given
+            sut.state = .displayingResult(value: "23")
+            
+            //When
+            sut.viewControllerTapperOperatorButton(viewController, operation: operation)
+            
+            //Then
+            XCTAssertEqual(viewController.textView.text, "23 \(operation.rawValue) ")
+            XCTAssertEqual(sut.state, .writingCalculation)
+        }
     }
 }
 
