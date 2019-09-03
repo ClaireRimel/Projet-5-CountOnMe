@@ -95,6 +95,20 @@ class CountOnMeTests: XCTestCase {
             XCTAssertEqual(sut.state, .writingCalculation)
         }
     }
+    
+    // MARK: Numbers
+    
+    func testRemovesZeroDisplayedWhenPressingANumber() {
+        //Given
+        sut.state = .writingCalculation
+        viewController.textView.text = "0"
+        
+        //When
+        sut.viewControllerTapperNumberButton(viewController, numberText: "1")
+        
+        //Then
+        XCTAssertEqual(viewController.textView.text, "1")
+    }
 }
 
 
