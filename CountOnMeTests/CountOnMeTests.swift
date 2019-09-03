@@ -43,13 +43,13 @@ class CountOnMeTests: XCTestCase {
     
     func testSetsEmptyStringToTextViewOnDeleteAction() {
         //Given
-        viewController.textView.text = "hello"
+        viewController.textView.text = "123"
         
         //When
         sut.viewControllerTapperDeleteButton(viewController)
         
         //Then
-        XCTAssertEqual(viewController.textView.text, "")
+        XCTAssertEqual(viewController.textView.text, "0")
     }
     
     //MARK: Operators
@@ -109,6 +109,133 @@ class CountOnMeTests: XCTestCase {
         //Then
         XCTAssertEqual(viewController.textView.text, "1")
     }
+    
+    func testAddingCommaAfterACommaDisplaysError() {
+        //Given
+        sut.state = .writingCalculation
+        viewController.textView.text = "."
+        
+        //When
+        sut.viewControllerTapperNumberButton(viewController, numberText: ".")
+       
+        //Then
+        XCTAssertEqual(viewController.type, .lastCharacterIsAComma)
+    }
+    
+    func testAddingCommaAfterAnOperatorAppendsAZeroPlusAComma() {
+        for operation in Operator.allCases {
+            //Given
+            sut.state = .writingCalculation
+            viewController.textView.text = "23 \(operation.rawValue) "
+            
+            //When
+            sut.viewControllerTapperNumberButton(viewController, numberText: ".")
+            
+            //Then
+            XCTAssertEqual(viewController.textView.text, "23 \(operation.rawValue) 0.")
+        }
+    }
+    
+    func testAddingCommaAfterANumber() {
+        //Given
+        sut.state = .writingCalculation
+        viewController.textView.text = "23"
+        
+        //When
+        sut.viewControllerTapperNumberButton(viewController, numberText: ".")
+        
+        //Then
+        XCTAssertEqual(viewController.textView.text, "23.")
+    }
+    
+    func testAddingZeroPlusCommaIfEmptyTextView() {
+        //Given
+        sut.state = .writingCalculation
+        viewController.textView.text = ""
+        
+        //When
+        sut.viewControllerTapperNumberButton(viewController, numberText: ".")
+        
+        //Then
+        XCTAssertEqual(viewController.textView.text, "0.")
+    }
+    
+    func testReplaceTheLastElementIfZeroByTheTappedNumber() {
+        //Given
+        sut.state = .writingCalculation
+        viewController.textView.text = "23 + 0"
+        
+        //When
+        sut.viewControllerTapperNumberButton(viewController, numberText: "3")
+        
+        //Then
+        XCTAssertEqual(viewController.textView.text, "23 + 3")
+    }
+    
+    func testImpossibleDivisionByZeroDisplaysError() {
+        sut.state = .writingCalculation
+        viewController.textView.text = "23 / "
+        
+        //When
+        sut.viewControllerTapperNumberButton(viewController, numberText: "0")
+        
+        //Then
+        XCTAssertEqual(viewController.type, .impossibleDivisionByZero)
+    }
+    
+    func testPossibleDivisionByZero() {
+            //Given
+            sut.state = .writingCalculation
+            viewController.textView.text = "23 / "
+            
+            //When
+            sut.viewControllerTapperNumberButton(viewController, numberText: "4")
+            
+            //Then
+            XCTAssertEqual(viewController.textView.text, "23 / 4")
+    }
+    
+    func testPossibilityOfAddingAZeroAfterOperatorsAddSubstractAndMutliply() {
+        for operation in [Operator.addition, Operator.substraction, Operator.multiplication ] {
+            //Given
+            sut.state = .writingCalculation
+            viewController.textView.text = "23 \(operation.rawValue) "
+            
+            //When
+            sut.viewControllerTapperNumberButton(viewController, numberText: "0")
+            
+            //Then
+            XCTAssertEqual(viewController.textView.text, "23 \(operation.rawValue) 0")
+        }
+    }
+    
+    func testAddingCommaAfterDisplayingResult() {
+        //Given
+        sut.state = .displayingResult(value: "23")
+        
+        //When
+        sut.viewControllerTapperNumberButton(viewController, numberText: ".")
+        
+        //Then
+        XCTAssertEqual(viewController.textView.text, "0.")
+        XCTAssertEqual(sut.state, .writingCalculation)
+    }
+    
+    func testAddingNumberAfterDisplayingResult() {
+        //Given
+        sut.state = .displayingResult(value: "23")
+        
+        //When
+        sut.viewControllerTapperNumberButton(viewController, numberText: "44")
+        
+        //Then
+        XCTAssertEqual(viewController.textView.text, "44")
+        XCTAssertEqual(sut.state, .writingCalculation)
+    }
 }
+//Given
 
+//When
+
+//Then
 
