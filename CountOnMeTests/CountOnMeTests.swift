@@ -183,7 +183,7 @@ class CountOnMeTests: XCTestCase {
         XCTAssertEqual(viewController.type, .impossibleDivisionByZero)
     }
     
-    func testPossibleDivisionByZero() {
+    func testPossibleDivisionByOtherNumbers() {
             //Given
             sut.state = .writingCalculation
             viewController.textView.text = "23 / "
@@ -232,6 +232,31 @@ class CountOnMeTests: XCTestCase {
         XCTAssertEqual(viewController.textView.text, "44")
         XCTAssertEqual(sut.state, .writingCalculation)
     }
+    
+    // MARK: Result
+    
+    func testDisplayErrorMessageIfExpressionDontHaveEnoughElements() {
+        //Given
+        viewController.textView.text = "23 +"
+        
+        //When
+        sut.viewControllerTapperEqualButton(viewController)
+        
+        //Then
+        XCTAssertEqual(viewController.type, .expressionDoesNotHaveEnoughElement)
+    }
+    
+    func testDisplayErrorMessageIfExpressionIsFalse() {
+        //Given
+        viewController.textView.text = "2 + 3 +"
+        
+        //When
+        sut.viewControllerTapperEqualButton(viewController)
+        
+        //Then
+        XCTAssertEqual(viewController.type, .expressionIsNotCorrect)
+    }
+ 
 }
 //Given
 
