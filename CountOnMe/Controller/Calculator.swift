@@ -167,15 +167,13 @@ extension Calculator: ViewControllerDelegate {
                     if last.contains(".") {
                         viewController.displayErrorMessage(type: .lastCharacterIsAComma)
                     } else {
-                        switch last {
-                        case "+", "-", "x", "/":
+                        if Operator(rawValue: last) != nil {
                             viewController.textView.text.append("0.")
-                        default :
+                        } else {
                             viewController.textView.text.append(".")
                         }
                     }
                 } else {
-                    //nothing...
                     viewController.textView.text = "0."
                 }
             } else {
@@ -184,7 +182,7 @@ extension Calculator: ViewControllerDelegate {
                     viewController.textView.text.append(numberText)
                     
                 } else {
-                    if let last = elements.last, last == "/", numberText == "0" {
+                    if let last = elements.last, last == Operator.division.rawValue, numberText == "0" {
                         viewController.displayErrorMessage(type: .impossibleDivisionByZero)
                     } else {
                         viewController.textView.text.append(numberText)
@@ -198,7 +196,6 @@ extension Calculator: ViewControllerDelegate {
             } else {
                viewController.textView.text = numberText
             }
-            
             state = .writingCalculation
         }
     }
