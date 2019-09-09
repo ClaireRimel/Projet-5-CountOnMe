@@ -269,6 +269,61 @@ class CountOnMeTests: XCTestCase {
         XCTAssertEqual(viewController.textView.text, "0")
         XCTAssertEqual(sut.state, .writingCalculation)
     }
+    
+    func testAdditionOperation() {
+        //Given
+        viewController.textView.text = "2 + 3"
+
+        //When
+        sut.viewControllerTapperEqualButton(viewController)
+        //Then
+
+        XCTAssertEqual(viewController.textView.text, "2 + 3 = 5")
+    }
+    
+    func testSbustractionOperation() {
+        //Given
+        viewController.textView.text = "2 - 3"
+        
+        //When
+        sut.viewControllerTapperEqualButton(viewController)
+        //Then
+        
+        XCTAssertEqual(viewController.textView.text, "2 - 3 = -1")
+    }
+    
+    func testMultiplicationOperation() {
+        //Given
+        viewController.textView.text = "2 x 3"
+        
+        //When
+        sut.viewControllerTapperEqualButton(viewController)
+        //Then
+        
+        XCTAssertEqual(viewController.textView.text, "2 x 3 = 6")
+    }
+    
+    func testDivisionOperation() {
+        //Given
+        viewController.textView.text = "2 / 3"
+        
+        //When
+        sut.viewControllerTapperEqualButton(viewController)
+        //Then
+        
+        XCTAssertEqual(viewController.textView.text, "2 / 3 = 0.67")
+    }
+    
+    func testPrioritiesOperation() {
+        //Given
+        viewController.textView.text = "2 + 3 / 3 x 4 - 5 x 2 / 3"
+        
+        //When
+        sut.viewControllerTapperEqualButton(viewController)
+        //Then
+        
+        XCTAssertEqual(viewController.textView.text, "2 + 3 / 3 x 4 - 5 x 2 / 3 = 2.67")
+    }
  
 }
 //Given
