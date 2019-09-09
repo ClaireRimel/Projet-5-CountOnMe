@@ -64,12 +64,6 @@ class ViewController: UIViewController {
     
     weak var delegate: ViewControllerDelegate?
     
-    func displayErrorMessage(type: MessageErrorType){
-        let alertVC = UIAlertController(title: type.title, message: type.message, preferredStyle: .alert)
-        alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-        self.present(alertVC, animated: true, completion: nil)
-    }
-    
     // Work in progress 
     var state: CalculatorState = .writingCalculation
     
@@ -95,6 +89,12 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         textView.text = "0"
+    }
+    
+    func displayErrorMessage(type: MessageErrorType){
+        let alertVC = UIAlertController(title: type.title, message: type.message, preferredStyle: .alert)
+        alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+        self.present(alertVC, animated: true, completion: nil)
     }
     
     // View actions
