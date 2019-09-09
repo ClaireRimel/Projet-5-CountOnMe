@@ -40,83 +40,68 @@ class Calculator {
         self.viewController = viewController
         viewController.delegate = self
     }
+    
+    func resolve(elements: [String]) -> [String] {
+        let array = resolve(operators: (.multiplication, .division), in: elements)
+        return resolve(operators: (.addition, .substraction), in: array)
+    }
+    
+    func resolve(operators: (Operator, Operator), in elements: [String]) -> [String] {
+        var operationsToReduce = elements
+        
+        // Iterate over operations while an operand still here
+        while operationsToReduce.contains(operators.0.rawValue)
+            || operationsToReduce.contains(operators.1.rawValue) {
+        
+                let index = operationsToReduce.firstIndex { (element) -> Bool in
+                    if let operation = Operator(rawValue: element),
+                        operation == operators.0 || operation == operators.1 {
+                        return true
+                    } else {
+                        return false
+                    }
+                }
+                
+                if let index = index {
+                    let operation = Operator(rawValue: operationsToReduce[index])!
+                    
+                    let left = Double(operationsToReduce[index - 1])!
+                    let right = Double(operationsToReduce[index + 1])!
+                    let result: Double = operation.operand(left: left, right: right)
+                    
+                    operationsToReduce.remove(at: index - 1)
+                    operationsToReduce.remove(at: index - 1)
+                    operationsToReduce.insert("\(result)", at: index)
+                    operationsToReduce.remove(at: index - 1)
+                }
+        }
+        
+        return operationsToReduce
+    }
 }
 
 extension Calculator: ViewControllerDelegate {
+    
     func viewControllerTapperEqualButton(_ viewController: ViewController) {
-        guard expressionIsCorrect else {
-            viewController.displayErrorMessage(type: .expressionIsNotCorrect)
-            return
-        }
-        
         guard expressionHaveEnoughElement else {
             viewController.displayErrorMessage(type: .expressionDoesNotHaveEnoughElement)
             return
         }
         
+        guard expressionIsCorrect else {
+            viewController.displayErrorMessage(type: .expressionIsNotCorrect)
+            return
+        }
+        
         guard state == .writingCalculation else {
-            viewController.textView.text.removeAll()
+            viewController.textView.text = "0"
             state = .writingCalculation
             return
         }
         
         // Create local copy of operations
-        var operationsToReduce = elements
-        
-        // Iterate over operations while an operand still here
-        while operationsToReduce.contains(Operator.multiplication.rawValue)
-            || operationsToReduce.contains(Operator.division.rawValue) {
-                
-                let index = operationsToReduce.firstIndex { (element) -> Bool in
-                    if let operation = Operator(rawValue: element),
-                        operation == .multiplication || operation == .division {
-                        return true
-                    } else {
-                        return false
-                    }
-                }
-                
-                if let index = index {
-                    let operation = Operator(rawValue: operationsToReduce[index])!
-                    
-                    let left = Double(operationsToReduce[index - 1])!
-                    let right = Double(operationsToReduce[index + 1])!
-                    let result: Double = operation.operand(left: left, right: right)
-                    
-                    operationsToReduce.remove(at: index - 1)
-                    operationsToReduce.remove(at: index - 1)
-                    operationsToReduce.insert("\(result)", at: index)
-                    operationsToReduce.remove(at: index - 1)
-                }
-        }
-        
-        // Iterate over operations while an operand still here
-        while operationsToReduce.contains(Operator.addition.rawValue)
-            || operationsToReduce.contains(Operator.substraction.rawValue) {
-                
-                let index = operationsToReduce.firstIndex { (element) -> Bool in
-                    if let operation = Operator(rawValue: element),
-                        operation == .addition || operation == .substraction {
-                        return true
-                    } else {
-                        return false
-                    }
-                }
-                
-                if let index = index {
-                    let operation = Operator(rawValue: operationsToReduce[index])!
-                    
-                    let left = Double(operationsToReduce[index - 1])!
-                    let right = Double(operationsToReduce[index + 1])!
-                    let result: Double = operation.operand(left: left, right: right)
-                    
-                    operationsToReduce.remove(at: index - 1)
-                    operationsToReduce.remove(at: index - 1)
-                    operationsToReduce.insert("\(result)", at: index)
-                    operationsToReduce.remove(at: index - 1)
-                }
-        }
-        
+        let operationsToReduce = resolve(elements: elements)
+    
         if let value = operationsToReduce.first,
             let result = Double(value) {
             
