@@ -130,7 +130,7 @@ extension Calculator: ViewControllerDelegate {
     
     
     func viewControllerTapperDeleteButton(_ viewController: ViewController) {
-        viewController.textView.text.removeAll()
+        viewController.textView.text = "0"
         state = .writingCalculation
     }
     
