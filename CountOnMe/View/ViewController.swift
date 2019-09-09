@@ -26,26 +26,6 @@ class ViewController: UIViewController {
     
     weak var delegate: ViewControllerDelegate?
     
-    // Work in progress 
-    var state: CalculatorState = .writingCalculation
-    
-    var elements: [String] {
-        return textView.text.split(separator: " ").map { "\($0)" }
-    }
-    
-    // Error check computed variables
-    var expressionIsCorrect: Bool {
-        return elements.last != "+" && elements.last != "-" && elements.last != "/" && elements.last != "x"
-    }
-    
-    var expressionHaveEnoughElement: Bool {
-        return elements.count >= 3
-    }
-    
-    var canAddOperator: Bool {
-        return elements.last != "+" && elements.last != "-" && elements.last != "/" && elements.last != "x"
-    }
-    
     // View Life cycles
     override func viewDidLoad() {
         super.viewDidLoad()
