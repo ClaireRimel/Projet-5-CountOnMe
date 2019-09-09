@@ -256,6 +256,19 @@ class CountOnMeTests: XCTestCase {
         //Then
         XCTAssertEqual(viewController.type, .expressionIsNotCorrect)
     }
+    
+    func testVerifyStateIsWritingCalculation() {
+        //Given
+        viewController.textView.text = "2 + 4"
+        sut.state = .displayingResult(value: "23")
+        
+        //When
+        sut.viewControllerTapperEqualButton(viewController)
+        
+        //Then
+        XCTAssertEqual(viewController.textView.text, "0")
+        XCTAssertEqual(sut.state, .writingCalculation)
+    }
  
 }
 //Given
