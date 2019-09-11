@@ -82,6 +82,21 @@ class CountOnMeTests: XCTestCase {
         }
     }
     
+    func testImpossibleDivisionByZeroDisplaysErrorAddingAnOperator() {
+        
+        for operation in Operator.allCases {
+            //Given
+            sut.state = .writingCalculation
+            viewController.textView.text = "23 / 0"
+            
+            //When
+            sut.viewControllerTapperOperatorButton(viewController, operation: operation)
+            
+            //Then
+            XCTAssertEqual(viewController.type, .impossibleDivisionByZero)
+        }
+    }
+    
     func testDisplaysOperatorAfterCalculation() {
         for operation in Operator.allCases {
             //Given
@@ -172,12 +187,12 @@ class CountOnMeTests: XCTestCase {
         XCTAssertEqual(viewController.textView.text, "23 + 3")
     }
     
-    func testImpossibleDivisionByZeroDisplaysError() {
-        sut.state = .writingCalculation
-        viewController.textView.text = "23 / "
+    func testImpossibleDivisionByZeroDisplaysErrorTappedEgualButton() {
+        //Given
+        viewController.textView.text = "23 / 0"
         
         //When
-        sut.viewControllerTapperNumberButton(viewController, numberText: "0")
+        sut.viewControllerTapperEqualButton(viewController)
         
         //Then
         XCTAssertEqual(viewController.type, .impossibleDivisionByZero)
