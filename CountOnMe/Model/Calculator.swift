@@ -35,7 +35,11 @@ class Calculator {
     var canAddOperator: Bool {
         return elements.last != "+" && elements.last != "-" && elements.last != "/" && elements.last != "x"
     }
-
+    
+    var doesContainsADivisionByZero: Bool {
+        return viewController.textView.text.contains("/ 0")
+    }
+    
     init(viewController: ViewController) {
         self.viewController = viewController
         viewController.delegate = self
@@ -47,6 +51,7 @@ class Calculator {
     }
     
     func resolve(operators: (Operator, Operator), in elements: [String]) -> [String] {
+       // Model var operationsToReduce = elements
         var operationsToReduce = elements
         
         // Iterate over operations while an operand still here
@@ -75,7 +80,6 @@ class Calculator {
                     operationsToReduce.remove(at: index - 1)
                 }
         }
-        
         return operationsToReduce
     }
 }
@@ -90,6 +94,11 @@ extension Calculator: ViewControllerDelegate {
         
         guard expressionIsCorrect else {
             viewController.displayErrorMessage(type: .expressionIsNotCorrect)
+            return
+        }
+        
+        guard !doesContainsADivisionByZero else {
+            viewController.displayErrorMessage(type: .impossibleDivisionByZero)
             return
         }
         
@@ -126,13 +135,19 @@ extension Calculator: ViewControllerDelegate {
     func viewControllerTapperOperatorButton(_ viewController: ViewController, operation: Operator) {
         switch state {
         case .writingCalculation:
-            if canAddOperator {
+            
+            if doesContainsADivisionByZero {
+                viewController.displayErrorMessage(type: .impossibleDivisionByZero)
+                
+            } else if canAddOperator {
                 viewController.textView.text.append(" " + operation.rawValue + " ")
-
+                
             } else {
                 viewController.displayErrorMessage(type: .lastCharacterIsAnOperator)
+                
             }
             
+           
         case .displayingResult(let value):
             //clean text
             viewController.textView.text = value
@@ -170,14 +185,11 @@ extension Calculator: ViewControllerDelegate {
                     viewController.textView.text.removeLast()
                     viewController.textView.text.append(numberText)
                     
-                } else {
-                    if let last = elements.last, last == Operator.division.rawValue, numberText == "0" {
-                        viewController.displayErrorMessage(type: .impossibleDivisionByZero)
                     } else {
                         viewController.textView.text.append(numberText)
                     }
                 }
-            }
+
             
         case .displayingResult:
             if numberText == "." {
