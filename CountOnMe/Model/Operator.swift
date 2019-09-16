@@ -8,6 +8,7 @@
 
 import Foundation
 
+/// List of supported operations by the Calculator. The rawValues represent each operator symbol.
 enum Operator: String, CaseIterable, RawRepresentable {
     case multiplication = "x"
     case division = "/"

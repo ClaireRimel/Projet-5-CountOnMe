@@ -8,6 +8,7 @@
 
 import UIKit
 
+// Notifies the model that a specific action was tapped by the user on the view
 protocol ViewControllerDelegate: class {
     
     func viewControllerTapperNumberButton(_ viewController: ViewController, numberText: String)
@@ -30,16 +31,17 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
+        //Initially the calculator displays a 0 on screen
         textView.text = "0"
     }
     
+    // Configures the UIAlertController to be displayed using the received MessageErrorType's title and message properties
     func displayErrorMessage(type: MessageErrorType){
         let alertVC = UIAlertController(title: type.title, message: type.message, preferredStyle: .alert)
         alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
         self.present(alertVC, animated: true, completion: nil)
     }
     
-    // View actions
     @IBAction func tappedNumberButton(_ sender: UIButton) {
         guard let numberText = sender.title(for: .normal) else {
             return
@@ -48,6 +50,7 @@ class ViewController: UIViewController {
         delegate?.viewControllerTapperNumberButton(self, numberText: numberText)
     }
     
+    // Gives the corresponding kind of operator case depending on the action
     @IBAction func tappedAdditionButton(_ sender: UIButton) {
         delegate?.viewControllerTapperOperatorButton(self, operation: .addition)
     }
@@ -69,6 +72,6 @@ class ViewController: UIViewController {
     }
     
     @IBAction func tappedEqualButton(_ sender: UIButton) {
-       delegate?.viewControllerTapperEqualButton(self)
+        delegate?.viewControllerTapperEqualButton(self)
     }
 }

@@ -30,7 +30,6 @@ class OperatorTests: XCTestCase {
     
     //MARK: Operand
     func testOperatorMultiplicationtionOperand() {
-        
         let result = Operator.multiplication.operand(left: 2, right: 3)
         XCTAssertEqual(result, 6)
     }

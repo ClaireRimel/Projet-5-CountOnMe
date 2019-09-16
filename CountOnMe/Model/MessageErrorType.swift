@@ -8,6 +8,7 @@
 
 import Foundation
 
+// List of possible errors displayed by the Calculator
 enum MessageErrorType {
     case lastCharacterIsAComma
     case impossibleDivisionByZero

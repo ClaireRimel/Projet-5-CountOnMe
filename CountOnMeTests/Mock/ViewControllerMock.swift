@@ -9,6 +9,7 @@
 import Foundation
 @testable import CountOnMe
 
+// Acts as a ViewController mock to be used by the Calculator class for testing purposes 
 final class ViewControllerMock: ViewController {
     
     var type: MessageErrorType?
