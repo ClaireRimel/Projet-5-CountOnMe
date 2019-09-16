@@ -47,13 +47,13 @@ class Calculator {
     }
     
     /// We apply operators priorities by calling the resolve function two times with different set of operators of equal priority, which are represented by a Tuple.
-    func resolve(elements: [String]) -> [String] {
+    private func resolve(elements: [String]) -> [String] {
         let array = resolve(operators: (.multiplication, .division), in: elements)
         return resolve(operators: (.addition, .substraction), in: array)
     }
     
     // Solves the given operators (parameters) in the equation represented by the elements array
-    func resolve(operators: (Operator, Operator), in elements: [String]) -> [String] {
+    private func resolve(operators: (Operator, Operator), in elements: [String]) -> [String] {
         var operationsToReduce = elements
         
         // Iterate over operations while an operand still here
