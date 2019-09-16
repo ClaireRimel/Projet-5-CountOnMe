@@ -16,17 +16,14 @@ class CountOnMeTests: XCTestCase {
     var viewController: ViewControllerMock!
     
     override func setUp() {
-        
+        super.setUp()
         viewController = ViewControllerMock()
         viewController.textView = UITextView()
         viewController.numberButtons = [UIButton()]
-
         sut = Calculator(viewController: viewController)
     }
     
-    override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-    }
+    override func tearDown() {}
     
     //MARK: Delete action
     
@@ -83,7 +80,6 @@ class CountOnMeTests: XCTestCase {
     }
     
     func testImpossibleDivisionByZeroDisplaysErrorAddingAnOperator() {
-        
         for operation in Operator.allCases {
             //Given
             sut.state = .writingCalculation
@@ -199,15 +195,15 @@ class CountOnMeTests: XCTestCase {
     }
     
     func testPossibleDivisionByOtherNumbers() {
-            //Given
-            sut.state = .writingCalculation
-            viewController.textView.text = "23 / "
-            
-            //When
-            sut.viewControllerTapperNumberButton(viewController, numberText: "4")
-            
-            //Then
-            XCTAssertEqual(viewController.textView.text, "23 / 4")
+        //Given
+        sut.state = .writingCalculation
+        viewController.textView.text = "23 / "
+        
+        //When
+        sut.viewControllerTapperNumberButton(viewController, numberText: "4")
+        
+        //Then
+        XCTAssertEqual(viewController.textView.text, "23 / 4")
     }
     
     func testPossibilityOfAddingAZeroAfterOperatorsAddSubstractAndMutliply() {
@@ -339,11 +335,6 @@ class CountOnMeTests: XCTestCase {
         
         XCTAssertEqual(viewController.textView.text, "2 + 3 / 3 x 4 - 5 x 2 / 3 = 2.67")
     }
- 
 }
-//Given
 
-//When
-
-//Then
 
