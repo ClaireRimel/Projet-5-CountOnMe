@@ -1,6 +1,5 @@
 # Projet-5-CountOnMe
 
-
 The 5th project was an opportunity to study units tests, by developing CountOnMe's application, which is a calculator.
 
 To succes the project, there remained some tasks to be done, such as: design in the Xcode project, implementing the project architecture in MVC, integrating division and multiplication and finally, it remained to include units tests .
