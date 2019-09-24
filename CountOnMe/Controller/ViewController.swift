@@ -8,31 +8,12 @@
 
 import UIKit
 
-// Notifies the model that a specific action was tapped by the user on the view
-protocol ViewControllerDelegate: class {
-    
-    func viewControllerTapperNumberButton(_ viewController: ViewController, numberText: String)
-    
-    func viewControllerTapperOperatorButton(_ viewController: ViewController, operation: Operator)
-    
-    func viewControllerTapperEqualButton(_ viewController: ViewController)
-    
-    func viewControllerTapperDeleteButton(_ viewController: ViewController)
-}
-
-protocol ViewControllerInterface {
-
-    var display: String { get set }
-
-    func displayErrorMessage(type: MessageErrorType)
-}
-
 class ViewController: UIViewController {
     
     @IBOutlet var textView: UITextView!
     @IBOutlet var numberButtons: [UIButton]!
-    
-    weak var delegate: ViewControllerDelegate?
+        
+    let calculator = Calculator()
     
     var display: String {
            get {
@@ -47,15 +28,9 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
+        calculator.delegate = self
         //Initially the calculator displays a 0 on screen
         textView.text = "0"
-    }
-    
-    // Configures the UIAlertController to be displayed using the received MessageErrorType's title and message properties
-    func displayErrorMessage(type: MessageErrorType){
-        let alertVC = UIAlertController(title: type.title, message: type.message, preferredStyle: .alert)
-        alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-        self.present(alertVC, animated: true, completion: nil)
     }
     
     @IBAction func tappedNumberButton(_ sender: UIButton) {
@@ -63,31 +38,41 @@ class ViewController: UIViewController {
             return
         }
         
-        delegate?.viewControllerTapperNumberButton(self, numberText: numberText)
+        calculator.tappedNumberButton(numberText: numberText)
     }
     
     // Gives the corresponding kind of operator case depending on the action
     @IBAction func tappedAdditionButton(_ sender: UIButton) {
-        delegate?.viewControllerTapperOperatorButton(self, operation: .addition)
+        calculator.tappedOperatorButton(operation: .addition)
     }
     
     @IBAction func tappedSubstractionButton(_ sender: UIButton) {
-        delegate?.viewControllerTapperOperatorButton(self, operation: .substraction)
+        calculator.tappedOperatorButton(operation: .substraction)
     }
     
     @IBAction func tappedDivisionButton(_ sender: UIButton) {
-        delegate?.viewControllerTapperOperatorButton(self, operation: .division)
+        calculator.tappedOperatorButton(operation: .division)
     }
     
     @IBAction func tappedMultiplicationButton(_ sender: UIButton) {
-        delegate?.viewControllerTapperOperatorButton(self, operation: .multiplication)
+        calculator.tappedOperatorButton(operation: .multiplication)
     }
     
     @IBAction func tappedDeleteButton(_ sender: UIButton) {
-        delegate?.viewControllerTapperDeleteButton(self)
+        calculator.tappedDeleteButton()
     }
     
     @IBAction func tappedEqualButton(_ sender: UIButton) {
-        delegate?.viewControllerTapperEqualButton(self)
+        calculator.tappedEqualButton()
+    }
+}
+
+extension ViewController: CalculatorDelegate {
+    
+    // Configures the UIAlertController to be displayed using the received MessageErrorType's title and message properties
+    func displayErrorMessage(type: MessageErrorType){
+        let alertVC = UIAlertController(title: type.title, message: type.message, preferredStyle: .alert)
+        alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+        self.present(alertVC, animated: true, completion: nil)
     }
 }
