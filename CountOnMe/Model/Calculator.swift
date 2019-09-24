@@ -15,73 +15,76 @@ enum CalculatorState: Equatable {
 }
 
 class Calculator {
-    
-    let viewController: ViewController
-    
-    var state: CalculatorState = .writingCalculation
-    
-    var elements: [String] {
-        return viewController.textView.text.split(separator: " ").map { "\($0)" }
-    }
-    
-    /// Error check computed variables
-    var expressionIsCorrect: Bool {
-        return elements.last != "+" && elements.last != "-" && elements.last != "/" && elements.last != "x"
-    }
-    
-    var expressionHaveEnoughElement: Bool {
-        return elements.count >= 3
-    }
-    
-    var canAddOperator: Bool {
-        return elements.last != "+" && elements.last != "-" && elements.last != "/" && elements.last != "x"
-    }
-    
-    var doesContainsADivisionByZero: Bool {
-        return viewController.textView.text.contains("/ 0")
-    }
-    
-    init(viewController: ViewController) {
-        self.viewController = viewController
-        viewController.delegate = self
-    }
-    
-    /// We apply operators priorities by calling the resolve function two times with different set of operators of equal priority, which are represented by a Tuple.
-    private func resolve(elements: [String]) -> [String] {
-        let array = resolve(operators: (.multiplication, .division), in: elements)
-        return resolve(operators: (.addition, .substraction), in: array)
-    }
-    
-    // Solves the given operators (parameters) in the equation represented by the elements array
-    private func resolve(operators: (Operator, Operator), in elements: [String]) -> [String] {
-        var operationsToReduce = elements
-        
-        // Iterate over operations while an operand still here
-        while operationsToReduce.contains(operators.0.rawValue)
-            || operationsToReduce.contains(operators.1.rawValue) {
-                
-                let index = operationsToReduce.firstIndex { (element) -> Bool in
-                    if let operation = Operator(rawValue: element),
-                        operation == operators.0 || operation == operators.1 {
-                        return true
-                    } else {
-                        return false
+  
+  let viewController: ViewController
+  
+  var state: CalculatorState = .writingCalculation
+  
+  var elements: [String] {
+      return viewController.display.split(separator: " ").map { "\($0)" }
+  }
+  
+  /// Error check computed variables
+  var expressionIsCorrect: Bool {
+      return elements.last != "+" && elements.last != "-" && elements.last != "/" && elements.last != "x"
+  }
+  
+  var expressionHaveEnoughElement: Bool {
+      return elements.count >= 3
+  }
+  
+  var canAddOperator: Bool {
+      return elements.last != "+" && elements.last != "-" && elements.last != "/" && elements.last != "x"
+  }
+  
+  var doesContainsADivisionByZero: Bool {
+      return viewController.display.contains("/ 0")
+  }
+  
+  init(viewController: ViewController) {
+      self.viewController = viewController
+      viewController.delegate = self
+  }
+  
+  /// We apply operators priorities by calling the resolve function two times with different set of operators of equal priority, which are represented by a Tuple.
+  private func resolve(elements: [String]) -> [String] {
+      let array = resolve(operators: (.multiplication, .division), in: elements)
+      return resolve(operators: (.addition, .substraction), in: array)
+  }
+  
+  // Solves the given operators (parameters) in the equation represented by the elements array
+  private func resolve(operators: (Operator, Operator), in elements: [String]) -> [String] {
+      var operationsToReduce = elements
+      
+      // Iterate over operations while an operand still here
+      while operationsToReduce.contains(operators.0.rawValue)
+          || operationsToReduce.contains(operators.1.rawValue) {
+              
+              let index = operationsToReduce.firstIndex { (element) -> Bool in
+                  if let operation = Operator(rawValue: element),
+                      operation == operators.0 || operation == operators.1 {
+                      return true
+                  } else {
+                      return false
+                  }
+              }
+              
+     if let index = index {
+                        if let operation = Operator(rawValue: operationsToReduce[index]){
+                        
+                          if let left = Double(operationsToReduce[index - 1]), let right = Double(operationsToReduce[index + 1]) {
+                                
+                                let result: Double = operation.operand(left: left, right: right)
+                                                   
+                                    operationsToReduce.remove(at: index - 1)
+                                    operationsToReduce.remove(at: index - 1)
+                                    operationsToReduce.insert("\(result)", at: index)
+                                    operationsToReduce.remove(at: index - 1)
+                                                   }
+                            }
+                       
                     }
-                }
-                
-                if let index = index {
-                    let operation = Operator(rawValue: operationsToReduce[index])!
-                    
-                    let left = Double(operationsToReduce[index - 1])!
-                    let right = Double(operationsToReduce[index + 1])!
-                    let result: Double = operation.operand(left: left, right: right)
-                    
-                    operationsToReduce.remove(at: index - 1)
-                    operationsToReduce.remove(at: index - 1)
-                    operationsToReduce.insert("\(result)", at: index)
-                    operationsToReduce.remove(at: index - 1)
-                }
-        }
+            }
         return operationsToReduce
     }
 }
@@ -107,7 +110,7 @@ extension Calculator: ViewControllerDelegate {
         
         // If the user presses the Equal button while the calculator is displaying a result, we will set a 0 on screen, resetting the calculator
         guard state == .writingCalculation else {
-            viewController.textView.text = "0"
+            viewController.display = "0"
             state = .writingCalculation
             return
         }
@@ -127,14 +130,14 @@ extension Calculator: ViewControllerDelegate {
                 resultString = String(format: "%.2f", result)
             }
             
-            viewController.textView.text.append(" = \(resultString)")
+            viewController.display.append(" = \(resultString)")
             state = .displayingResult(value: resultString)
         }
     }
     
     
     func viewControllerTapperDeleteButton(_ viewController: ViewController) {
-        viewController.textView.text = "0"
+        viewController.display = "0"
         state = .writingCalculation
     }
     
@@ -145,7 +148,7 @@ extension Calculator: ViewControllerDelegate {
                 viewController.displayErrorMessage(type: .impossibleDivisionByZero)
                 
             } else if canAddOperator {
-                viewController.textView.text.append(" " + operation.rawValue + " ")
+                viewController.display.append(" " + operation.rawValue + " ")
                 
             } else {
                 viewController.displayErrorMessage(type: .lastCharacterIsAnOperator)
@@ -154,16 +157,16 @@ extension Calculator: ViewControllerDelegate {
         // In the case we are displaying a result and then we tap on an operator, we will take the result as the first value of a new equation
         case .displayingResult(let value):
             //clean text
-            viewController.textView.text = value
-            viewController.textView.text.append(" " + operation.rawValue + " ")
+            viewController.display = value
+            viewController.display.append(" " + operation.rawValue + " ")
             state = .writingCalculation
         }
     }
     
     func viewControllerTapperNumberButton(_ viewController: ViewController, numberText: String) {
         // If the equation only contains a zero, we'll remove it in order to be replaced by the new number pressed by the user.
-        if viewController.textView.text == "0" {
-            viewController.textView.text.removeAll()
+        if viewController.display == "0" {
+            viewController.display.removeAll()
         }
         
         switch state {
@@ -175,31 +178,31 @@ extension Calculator: ViewControllerDelegate {
                     } else {
                         if Operator(rawValue: last) != nil {
                             //If the last element in the equation is an operator, we will display a zero before the comma
-                            viewController.textView.text.append("0.")
+                            viewController.display.append("0.")
                         } else {
-                            viewController.textView.text.append(".")
+                            viewController.display.append(".")
                         }
                     }
                 } else {
                     //If there are no elements in the equation, we will display a zero followed by a comma
-                    viewController.textView.text = "0."
+                    viewController.display = "0."
                 }
             } else {
                 // Checks if the last element in the equation is "0", if so, it is replaced by the number selected
                 if let last = elements.last, last == "0", numberText == "\(numberText)"  {
-                    viewController.textView.text.removeLast()
-                    viewController.textView.text.append(numberText)
+                    viewController.display.removeLast()
+                    viewController.display.append(numberText)
                     
                 } else {
-                    viewController.textView.text.append(numberText)
+                    viewController.display.append(numberText)
                 }
             }
             
         case .displayingResult:
             if numberText == "." {
-                viewController.textView.text = "0."
+                viewController.display = "0."
             } else {
-                viewController.textView.text = numberText
+                viewController.display = numberText
             }
             state = .writingCalculation
         }

@@ -20,12 +20,28 @@ protocol ViewControllerDelegate: class {
     func viewControllerTapperDeleteButton(_ viewController: ViewController)
 }
 
+protocol ViewControllerInterface {
+
+    var display: String { get set }
+
+    func displayErrorMessage(type: MessageErrorType)
+}
+
 class ViewController: UIViewController {
     
     @IBOutlet var textView: UITextView!
     @IBOutlet var numberButtons: [UIButton]!
     
     weak var delegate: ViewControllerDelegate?
+    
+    var display: String {
+           get {
+               return textView.text
+           }
+           set {
+               textView.text = newValue
+           }
+    }
     
     // View Life cycles
     override func viewDidLoad() {
