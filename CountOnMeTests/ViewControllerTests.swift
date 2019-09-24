@@ -12,16 +12,16 @@ import XCTest
 class ViewControllerTests: XCTestCase {
     
     var sut: ViewController!
-    var delegateMock: ViewControllerDelegateMock!
+    var calculatorMock: CalculatorMock!
     
     override func setUp() {
         sut = ViewController()
         sut.textView = UITextView()
         sut.numberButtons = [UIButton()]
         
-        delegateMock = ViewControllerDelegateMock()
+        calculatorMock = CalculatorMock()
 
-        sut.delegate = delegateMock
+        sut.calculator = calculatorMock
     }
 
     override func tearDown() {
@@ -39,7 +39,7 @@ class ViewControllerTests: XCTestCase {
         sut.tappedNumberButton(button)
         
         //Then
-        XCTAssertEqual(delegateMock.numberText, "1")
+        XCTAssertEqual(calculatorMock.numberText, "1")
     }
     
     // MARK: operators
@@ -51,7 +51,7 @@ class ViewControllerTests: XCTestCase {
         sut.tappedAdditionButton(UIButton())
         
         //Then
-        XCTAssertEqual(delegateMock.operation, .addition)
+        XCTAssertEqual(calculatorMock.operation, .addition)
     }
     
     func testTappedSubstractionButtonDelegate() {
@@ -62,7 +62,7 @@ class ViewControllerTests: XCTestCase {
         sut.tappedSubstractionButton(UIButton())
         
         //Then
-        XCTAssertEqual(delegateMock.operation, .substraction)
+        XCTAssertEqual(calculatorMock.operation, .substraction)
     }
     
     
@@ -74,7 +74,7 @@ class ViewControllerTests: XCTestCase {
         sut.tappedMultiplicationButton(UIButton())
         
         //Then
-        XCTAssertEqual(delegateMock.operation, .multiplication)
+        XCTAssertEqual(calculatorMock.operation, .multiplication)
     }
     
     func testTappedDivisionButtonDelegate() {
@@ -86,31 +86,31 @@ class ViewControllerTests: XCTestCase {
         
         //Then
         
-        XCTAssertEqual(delegateMock.operation, .division)
+        XCTAssertEqual(calculatorMock.operation, .division)
     }
     
     // MARK: Equal
     func testTappedEqualButtonDelegate() {
         //Given
-        delegateMock.equalActionWasCalled = false
+        calculatorMock.equalActionWasCalled = false
         
         //When
         sut.tappedEqualButton(UIButton())
         
         //Then
-        XCTAssertEqual(delegateMock.equalActionWasCalled, true)
+        XCTAssertEqual(calculatorMock.equalActionWasCalled, true)
     }
     
     // MARK: Delete
     func testTappedDeleteButtonDelegate() {
         //Given
-        delegateMock.deleteActionWasCalled = false
+        calculatorMock.deleteActionWasCalled = false
         
         //When
         sut.tappedDeleteButton(UIButton())
         
         //Then
-        XCTAssertEqual(delegateMock.deleteActionWasCalled, true)
+        XCTAssertEqual(calculatorMock.deleteActionWasCalled, true)
     }
     
     func testViewDidLoad() {

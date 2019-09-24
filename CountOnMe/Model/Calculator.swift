@@ -28,6 +28,7 @@ class Calculator {
     
     var state: CalculatorState = .writingCalculation
     
+    // nil coalescing operator
     var elements: [String] {
         return delegate?.output.split(separator: " ").map { "\($0)" } ?? []
     }
@@ -76,16 +77,13 @@ class Calculator {
                     let operation = Operator(rawValue: operationsToReduce[index]),
                     let left = Double(operationsToReduce[index - 1]),
                     let right = Double(operationsToReduce[index + 1]) {
-                    
-                    
+            
                     let result: Double = operation.operand(left: left, right: right)
                     
                     operationsToReduce.remove(at: index - 1)
                     operationsToReduce.remove(at: index - 1)
                     operationsToReduce.insert("\(result)", at: index)
                     operationsToReduce.remove(at: index - 1)
-                } else {
-                    print("Error No Value")
                 }
         }
         return operationsToReduce

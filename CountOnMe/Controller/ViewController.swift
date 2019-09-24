@@ -13,7 +13,7 @@ class ViewController: UIViewController {
     @IBOutlet var textView: UITextView!
     @IBOutlet var numberButtons: [UIButton]!
         
-    let calculator = Calculator()
+    var calculator = Calculator()
     
     var output: String {
            get {
@@ -65,14 +65,15 @@ class ViewController: UIViewController {
     @IBAction func tappedEqualButton(_ sender: UIButton) {
         calculator.tappedEqualButton()
     }
-}
-
-extension ViewController: CalculatorDelegate {
+    
+    //MARK: CalculatorDelegate
     
     // Configures the UIAlertController to be displayed using the received MessageErrorType's title and message properties
-    func calculator(_ calculator: Calculator, didFailWithError error: MessageErrorType) {
-        let alertVC = UIAlertController(title: error.title, message: error.message, preferredStyle: .alert)
-        alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-        self.present(alertVC, animated: true, completion: nil)
-    }
+     func calculator(_ calculator: Calculator, didFailWithError error: MessageErrorType) {
+         let alertVC = UIAlertController(title: error.title, message: error.message, preferredStyle: .alert)
+         alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+         self.present(alertVC, animated: true, completion: nil)
+     }
 }
+
+extension ViewController: CalculatorDelegate {}

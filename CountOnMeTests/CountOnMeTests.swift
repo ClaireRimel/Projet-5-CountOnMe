@@ -9,18 +9,28 @@
 import XCTest
 @testable import CountOnMe
 
+final class CalculatorDelegateMock: CalculatorDelegate {
+    var output: String = ""
+    var error: MessageErrorType?
+
+    func calculator(_ calculator: Calculator, didFailWithError error: MessageErrorType) {
+        self.error = error
+    }
+}
+
+
 class CountOnMeTests: XCTestCase {
 
     //System Under Test
     var sut: Calculator!
-    var viewController: ViewControllerMock!
+    var delegateMock: CalculatorDelegateMock!
     
     override func setUp() {
         super.setUp()
-        viewController = ViewControllerMock()
-        viewController.textView = UITextView()
-        viewController.numberButtons = [UIButton()]
-        sut = Calculator(viewController: viewController)
+        
+        delegateMock = CalculatorDelegateMock()
+        sut = Calculator()
+        sut.delegate = delegateMock
     }
     
     override func tearDown() {}
@@ -32,7 +42,7 @@ class CountOnMeTests: XCTestCase {
         XCTAssertEqual(sut.state, .writingCalculation)
         
         //When
-        sut.viewControllerTapperDeleteButton(viewController)
+        sut.tappedDeleteButton()
         
         //Then
         XCTAssertEqual(sut.state, .writingCalculation)
@@ -40,13 +50,13 @@ class CountOnMeTests: XCTestCase {
     
     func testSetsEmptyStringToTextViewOnDeleteAction() {
         //Given
-        viewController.textView.text = "123"
+        delegateMock.output = "123"
         
         //When
-        sut.viewControllerTapperDeleteButton(viewController)
+        sut.tappedDeleteButton()
         
         //Then
-        XCTAssertEqual(viewController.textView.text, "0")
+        XCTAssertEqual(delegateMock.output, "0")
     }
     
     //MARK: Operators
@@ -55,13 +65,13 @@ class CountOnMeTests: XCTestCase {
         for operation in Operator.allCases {
             //Given
             sut.state = .writingCalculation
-            viewController.textView.text = "1"
+            delegateMock.output = "1"
             
             //When
-            sut.viewControllerTapperOperatorButton(viewController, operation: operation)
-            
+            sut.tappedOperatorButton(operation: operation)
+
             //Then
-            XCTAssertEqual(viewController.textView.text, "1 \(operation.rawValue) ")
+            XCTAssertEqual(delegateMock.output, "1 \(operation.rawValue) ")
         }
     }
     
@@ -69,13 +79,13 @@ class CountOnMeTests: XCTestCase {
         for operation in Operator.allCases {
             //Given
             sut.state = .writingCalculation
-            viewController.textView.text = "-"
+            delegateMock.output = "-"
             
             //When
-            sut.viewControllerTapperOperatorButton(viewController, operation: operation)
+            sut.tappedOperatorButton(operation: operation)
             
             //Then
-            XCTAssertEqual(viewController.type, .lastCharacterIsAnOperator)
+            XCTAssertEqual(delegateMock.error, .lastCharacterIsAnOperator)
         }
     }
     
@@ -83,13 +93,13 @@ class CountOnMeTests: XCTestCase {
         for operation in Operator.allCases {
             //Given
             sut.state = .writingCalculation
-            viewController.textView.text = "23 / 0"
+            delegateMock.output = "23 / 0"
             
             //When
-            sut.viewControllerTapperOperatorButton(viewController, operation: operation)
+            sut.tappedOperatorButton(operation: operation)
             
             //Then
-            XCTAssertEqual(viewController.type, .impossibleDivisionByZero)
+            XCTAssertEqual(delegateMock.error, .impossibleDivisionByZero)
         }
     }
     
@@ -99,10 +109,10 @@ class CountOnMeTests: XCTestCase {
             sut.state = .displayingResult(value: "23")
             
             //When
-            sut.viewControllerTapperOperatorButton(viewController, operation: operation)
+            sut.tappedOperatorButton(operation: operation)
             
             //Then
-            XCTAssertEqual(viewController.textView.text, "23 \(operation.rawValue) ")
+            XCTAssertEqual(delegateMock.output, "23 \(operation.rawValue) ")
             XCTAssertEqual(sut.state, .writingCalculation)
         }
     }
@@ -112,111 +122,111 @@ class CountOnMeTests: XCTestCase {
     func testRemovesZeroDisplayedWhenPressingANumber() {
         //Given
         sut.state = .writingCalculation
-        viewController.textView.text = "0"
+        delegateMock.output = "0"
         
         //When
-        sut.viewControllerTapperNumberButton(viewController, numberText: "1")
+        sut.tappedNumberButton(numberText: "1")
         
         //Then
-        XCTAssertEqual(viewController.textView.text, "1")
+        XCTAssertEqual(delegateMock.output, "1")
     }
     
     func testAddingCommaAfterACommaDisplaysError() {
         //Given
         sut.state = .writingCalculation
-        viewController.textView.text = "."
+        delegateMock.output = "."
         
         //When
-        sut.viewControllerTapperNumberButton(viewController, numberText: ".")
+        sut.tappedNumberButton(numberText: ".")
        
         //Then
-        XCTAssertEqual(viewController.type, .lastCharacterIsAComma)
+        XCTAssertEqual(delegateMock.error, .lastCharacterIsAComma)
     }
     
     func testAddingCommaAfterAnOperatorAppendsAZeroPlusAComma() {
         for operation in Operator.allCases {
             //Given
             sut.state = .writingCalculation
-            viewController.textView.text = "23 \(operation.rawValue) "
+            delegateMock.output = "23 \(operation.rawValue) "
             
             //When
-            sut.viewControllerTapperNumberButton(viewController, numberText: ".")
+            sut.tappedNumberButton(numberText: ".")
             
             //Then
-            XCTAssertEqual(viewController.textView.text, "23 \(operation.rawValue) 0.")
+            XCTAssertEqual(delegateMock.output, "23 \(operation.rawValue) 0.")
         }
     }
     
     func testAddingCommaAfterANumber() {
         //Given
         sut.state = .writingCalculation
-        viewController.textView.text = "23"
+        delegateMock.output = "23"
         
         //When
-        sut.viewControllerTapperNumberButton(viewController, numberText: ".")
+        sut.tappedNumberButton(numberText: ".")
         
         //Then
-        XCTAssertEqual(viewController.textView.text, "23.")
+        XCTAssertEqual(delegateMock.output, "23.")
     }
     
     func testAddingZeroPlusCommaIfEmptyTextView() {
         //Given
         sut.state = .writingCalculation
-        viewController.textView.text = ""
+        delegateMock.output = ""
         
         //When
-        sut.viewControllerTapperNumberButton(viewController, numberText: ".")
+        sut.tappedNumberButton(numberText: ".")
         
         //Then
-        XCTAssertEqual(viewController.textView.text, "0.")
+        XCTAssertEqual(delegateMock.output, "0.")
     }
     
     func testReplaceTheLastElementIfZeroByTheTappedNumber() {
         //Given
         sut.state = .writingCalculation
-        viewController.textView.text = "23 + 0"
+        delegateMock.output = "23 + 0"
         
         //When
-        sut.viewControllerTapperNumberButton(viewController, numberText: "3")
+        sut.tappedNumberButton(numberText: "3")
         
         //Then
-        XCTAssertEqual(viewController.textView.text, "23 + 3")
+        XCTAssertEqual(delegateMock.output, "23 + 3")
     }
     
     func testImpossibleDivisionByZeroDisplaysErrorTappedEgualButton() {
         //Given
-        viewController.textView.text = "23 / 0"
+        delegateMock.output = "23 / 0"
         
         //When
-        sut.viewControllerTapperEqualButton(viewController)
+        sut.tappedEqualButton()
         
         //Then
-        XCTAssertEqual(viewController.type, .impossibleDivisionByZero)
+        XCTAssertEqual(delegateMock.error, .impossibleDivisionByZero)
     }
     
     func testPossibleDivisionByOtherNumbers() {
         //Given
         sut.state = .writingCalculation
-        viewController.textView.text = "23 / "
+        delegateMock.output = "23 / "
         
         //When
-        sut.viewControllerTapperNumberButton(viewController, numberText: "4")
+        sut.tappedNumberButton(numberText: "4")
         
         //Then
-        XCTAssertEqual(viewController.textView.text, "23 / 4")
+        XCTAssertEqual(delegateMock.output, "23 / 4")
     }
     
     func testPossibilityOfAddingAZeroAfterOperatorsAddSubstractAndMutliply() {
         for operation in [Operator.addition, Operator.substraction, Operator.multiplication ] {
             //Given
             sut.state = .writingCalculation
-            viewController.textView.text = "23 \(operation.rawValue) "
+            delegateMock.output = "23 \(operation.rawValue) "
             
             //When
-            sut.viewControllerTapperNumberButton(viewController, numberText: "0")
+            sut.tappedNumberButton(numberText: "0")
             
             //Then
-            XCTAssertEqual(viewController.textView.text, "23 \(operation.rawValue) 0")
+            XCTAssertEqual(delegateMock.output, "23 \(operation.rawValue) 0")
         }
     }
     
@@ -225,10 +235,10 @@ class CountOnMeTests: XCTestCase {
         sut.state = .displayingResult(value: "23")
         
         //When
-        sut.viewControllerTapperNumberButton(viewController, numberText: ".")
+        sut.tappedNumberButton(numberText: ".")
         
         //Then
-        XCTAssertEqual(viewController.textView.text, "0.")
+        XCTAssertEqual(delegateMock.output, "0.")
         XCTAssertEqual(sut.state, .writingCalculation)
     }
     
@@ -237,10 +247,10 @@ class CountOnMeTests: XCTestCase {
         sut.state = .displayingResult(value: "23")
         
         //When
-        sut.viewControllerTapperNumberButton(viewController, numberText: "44")
+        sut.tappedNumberButton(numberText: "44")
         
         //Then
-        XCTAssertEqual(viewController.textView.text, "44")
+        XCTAssertEqual(delegateMock.output, "44")
         XCTAssertEqual(sut.state, .writingCalculation)
     }
     
@@ -248,92 +258,92 @@ class CountOnMeTests: XCTestCase {
     
     func testDisplayErrorMessageIfExpressionDontHaveEnoughElements() {
         //Given
-        viewController.textView.text = "23 +"
+        delegateMock.output = "23 +"
         
         //When
-        sut.viewControllerTapperEqualButton(viewController)
+        sut.tappedEqualButton()
         
         //Then
-        XCTAssertEqual(viewController.type, .expressionDoesNotHaveEnoughElement)
+        XCTAssertEqual(delegateMock.error, .expressionDoesNotHaveEnoughElement)
     }
     
     func testDisplayErrorMessageIfExpressionIsFalse() {
         //Given
-        viewController.textView.text = "2 + 3 +"
+        delegateMock.output = "2 + 3 +"
         
         //When
-        sut.viewControllerTapperEqualButton(viewController)
+        sut.tappedEqualButton()
         
         //Then
-        XCTAssertEqual(viewController.type, .expressionIsNotCorrect)
+        XCTAssertEqual(delegateMock.error, .expressionIsNotCorrect)
     }
     
     func testVerifyStateIsWritingCalculation() {
         //Given
-        viewController.textView.text = "2 + 4"
+        delegateMock.output = "2 + 4"
         sut.state = .displayingResult(value: "23")
         
         //When
-        sut.viewControllerTapperEqualButton(viewController)
+        sut.tappedEqualButton()
         
         //Then
-        XCTAssertEqual(viewController.textView.text, "0")
+        XCTAssertEqual(delegateMock.output, "0")
         XCTAssertEqual(sut.state, .writingCalculation)
     }
     
     func testAdditionOperation() {
         //Given
-        viewController.textView.text = "2 + 3"
+        delegateMock.output = "2 + 3"
 
         //When
-        sut.viewControllerTapperEqualButton(viewController)
+        sut.tappedEqualButton()
         //Then
 
-        XCTAssertEqual(viewController.textView.text, "2 + 3 = 5")
+        XCTAssertEqual(delegateMock.output, "2 + 3 = 5")
     }
     
     func testSbustractionOperation() {
         //Given
-        viewController.textView.text = "2 - 3"
+       delegateMock.output = "2 - 3"
         
         //When
-        sut.viewControllerTapperEqualButton(viewController)
+        sut.tappedEqualButton()
         //Then
         
-        XCTAssertEqual(viewController.textView.text, "2 - 3 = -1")
+        XCTAssertEqual(delegateMock.output, "2 - 3 = -1")
     }
     
     func testMultiplicationOperation() {
         //Given
-        viewController.textView.text = "2 x 3"
+        delegateMock.output = "2 x 3"
         
         //When
-        sut.viewControllerTapperEqualButton(viewController)
+        sut.tappedEqualButton()
         //Then
         
-        XCTAssertEqual(viewController.textView.text, "2 x 3 = 6")
+        XCTAssertEqual(delegateMock.output, "2 x 3 = 6")
     }
     
     func testDivisionOperation() {
         //Given
-        viewController.textView.text = "2 / 3"
+        delegateMock.output = "2 / 3"
         
         //When
-        sut.viewControllerTapperEqualButton(viewController)
+        sut.tappedEqualButton()
         //Then
         
-        XCTAssertEqual(viewController.textView.text, "2 / 3 = 0.67")
+        XCTAssertEqual(delegateMock.output, "2 / 3 = 0.67")
     }
     
     func testPrioritiesOperation() {
         //Given
-        viewController.textView.text = "2 + 3 / 3 x 4 - 5 x 2 / 3"
+        delegateMock.output = "2 + 3 / 3 x 4 - 5 x 2 / 3"
         
         //When
-        sut.viewControllerTapperEqualButton(viewController)
+        sut.tappedEqualButton()
         //Then
         
-        XCTAssertEqual(viewController.textView.text, "2 + 3 / 3 x 4 - 5 x 2 / 3 = 2.67")
+        XCTAssertEqual(delegateMock.output, "2 + 3 / 3 x 4 - 5 x 2 / 3 = 2.67")
     }
 }
 

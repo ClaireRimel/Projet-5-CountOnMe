@@ -12,9 +12,9 @@ import Foundation
 // Acts as a ViewController mock to be used by the Calculator class for testing purposes 
 final class ViewControllerMock: ViewController {
     
-    var type: MessageErrorType?
+    var error: MessageErrorType?
     
-    override func displayErrorMessage(type: MessageErrorType) {
-        self.type = type
+    override func calculator(_ calculator: Calculator, didFailWithError error: MessageErrorType) {
+        self.error = error
     }
 }
