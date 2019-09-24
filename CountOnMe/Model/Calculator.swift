@@ -16,9 +16,9 @@ enum CalculatorState: Equatable {
 
 protocol CalculatorDelegate: class {
     
-    var display: String { get set }
+    var output: String { get set }
 
-    func displayErrorMessage(type: MessageErrorType)
+    func calculator(_ calculator: Calculator, didFailWithError error: MessageErrorType)
 }
 
 
@@ -29,7 +29,7 @@ class Calculator {
     var state: CalculatorState = .writingCalculation
     
     var elements: [String] {
-        return delegate?.display.split(separator: " ").map { "\($0)" } ?? []
+        return delegate?.output.split(separator: " ").map { "\($0)" } ?? []
     }
     
     /// Error check computed variables
@@ -46,7 +46,7 @@ class Calculator {
     }
     
     var doesContainsADivisionByZero: Bool {
-        return delegate?.display.contains("/ 0") ?? false
+        return delegate?.output.contains("/ 0") ?? false
     }
     
     /// We apply operators priorities by calling the resolve function two times with different set of operators of equal priority, which are represented by a Tuple.
@@ -94,23 +94,23 @@ class Calculator {
     func tappedEqualButton() {
         // Verification steps that check if we can proceed to do a calculation with the given expression, otherwise it's managing the error message corresponding.
         guard expressionHaveEnoughElement else {
-            delegate?.displayErrorMessage(type: .expressionDoesNotHaveEnoughElement)
+            delegate?.calculator(self, didFailWithError: .expressionDoesNotHaveEnoughElement)
             return
         }
         
         guard expressionIsCorrect else {
-            delegate?.displayErrorMessage(type: .expressionIsNotCorrect)
+            delegate?.calculator(self, didFailWithError: .expressionIsNotCorrect)
             return
         }
         
         guard !doesContainsADivisionByZero else {
-            delegate?.displayErrorMessage(type: .impossibleDivisionByZero)
+            delegate?.calculator(self, didFailWithError: .impossibleDivisionByZero)
             return
         }
         
         // If the user presses the Equal button while the calculator is displaying a result, we will set a 0 on screen, resetting the calculator
         guard state == .writingCalculation else {
-            delegate?.display = "0"
+            delegate?.output = "0"
             state = .writingCalculation
             return
         }
@@ -130,14 +130,14 @@ class Calculator {
                 resultString = String(format: "%.2f", result)
             }
             
-            delegate?.display.append(" = \(resultString)")
+            delegate?.output.append(" = \(resultString)")
             state = .displayingResult(value: resultString)
         }
     }
     
     
     func tappedDeleteButton() {
-        delegate?.display = "0"
+        delegate?.output = "0"
         state = .writingCalculation
     }
     
@@ -145,28 +145,27 @@ class Calculator {
         switch state {
         case .writingCalculation:
             if doesContainsADivisionByZero {
-                delegate?.displayErrorMessage(type: .impossibleDivisionByZero)
-                
+                delegate?.calculator(self, didFailWithError: .impossibleDivisionByZero)
             } else if canAddOperator {
-                delegate?.display.append(" " + operation.rawValue + " ")
+                delegate?.output.append(" " + operation.rawValue + " ")
                 
             } else {
-                delegate?.displayErrorMessage(type: .lastCharacterIsAnOperator)
+                delegate?.calculator(self, didFailWithError: .lastCharacterIsAnOperator)
             }
             
         // In the case we are displaying a result and then we tap on an operator, we will take the result as the first value of a new equation
         case .displayingResult(let value):
             //clean text
-            delegate?.display = value
-            delegate?.display.append(" " + operation.rawValue + " ")
+            delegate?.output = value
+            delegate?.output.append(" " + operation.rawValue + " ")
             state = .writingCalculation
         }
     }
     
     func tappedNumberButton(numberText: String) {
         // If the equation only contains a zero, we'll remove it in order to be replaced by the new number pressed by the user.
-        if delegate?.display == "0" {
-            delegate?.display.removeAll()
+        if delegate?.output == "0" {
+            delegate?.output.removeAll()
         }
         
         switch state {
@@ -174,35 +173,35 @@ class Calculator {
             if numberText == "." {
                 if let last = elements.last  {
                     if last.contains(".") {
-                        delegate?.displayErrorMessage(type: .lastCharacterIsAComma)
+                        delegate?.calculator(self, didFailWithError: .lastCharacterIsAComma)
                     } else {
                         if Operator(rawValue: last) != nil {
                             //If the last element in the equation is an operator, we will display a zero before the comma
-                            delegate?.display.append("0.")
+                            delegate?.output.append("0.")
                         } else {
-                            delegate?.display.append(".")
+                            delegate?.output.append(".")
                         }
                     }
                 } else {
                     //If there are no elements in the equation, we will display a zero followed by a comma
-                    delegate?.display = "0."
+                    delegate?.output = "0."
                 }
             } else {
                 // Checks if the last element in the equation is "0", if so, it is replaced by the number selected
                 if let last = elements.last, last == "0", numberText == "\(numberText)"  {
-                    delegate?.display.removeLast()
-                    delegate?.display.append(numberText)
+                    delegate?.output.removeLast()
+                    delegate?.output.append(numberText)
                     
                 } else {
-                    delegate?.display.append(numberText)
+                    delegate?.output.append(numberText)
                 }
             }
             
         case .displayingResult:
             if numberText == "." {
-                delegate?.display = "0."
+                delegate?.output = "0."
             } else {
-                delegate?.display = numberText
+                delegate?.output = numberText
             }
             state = .writingCalculation
         }

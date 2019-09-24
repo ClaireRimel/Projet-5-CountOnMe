@@ -15,7 +15,7 @@ class ViewController: UIViewController {
         
     let calculator = Calculator()
     
-    var display: String {
+    var output: String {
            get {
                return textView.text
            }
@@ -70,8 +70,8 @@ class ViewController: UIViewController {
 extension ViewController: CalculatorDelegate {
     
     // Configures the UIAlertController to be displayed using the received MessageErrorType's title and message properties
-    func displayErrorMessage(type: MessageErrorType){
-        let alertVC = UIAlertController(title: type.title, message: type.message, preferredStyle: .alert)
+    func calculator(_ calculator: Calculator, didFailWithError error: MessageErrorType) {
+        let alertVC = UIAlertController(title: error.title, message: error.message, preferredStyle: .alert)
         alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
         self.present(alertVC, animated: true, completion: nil)
     }
